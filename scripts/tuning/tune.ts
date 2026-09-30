@@ -99,7 +99,7 @@ function main(): void {
   const emit = args.includes('--emit');
   const roundsFlag = args.indexOf('--rounds');
   const quickRounds = roundsFlag >= 0 ? Number(args[roundsFlag + 1]) : 2_000_000;
-  const ids = args.filter((a, i) => !a.startsWith('--') && i !== roundsFlag + 1);
+  const ids = args.filter((a, i) => !a.startsWith('--') && (roundsFlag < 0 || i !== roundsFlag + 1));
   const selected = ids.length > 0 ? CANDIDATES.filter((c) => ids.includes(c.id)) : CANDIDATES;
   if (selected.length === 0) throw new Error(`unknown candidate(s): ${ids.join(', ')}`);
 
@@ -117,10 +117,14 @@ function main(): void {
         ['base', a.base],
         ['free spins (x1)', a.freeSpins],
       ] as const) {
-        console.log(`\n${candidate.id} ${name}: line RTP by symbol`);
-        const bySymbol = new Map<string, number>();
-        for (const s of set.lineStats) bySymbol.set(s.symbol, (bySymbol.get(s.symbol) ?? 0) + s.rtp);
-        console.table(Object.fromEntries([...bySymbol].map(([k, v]) => [k, pct(v)])));
+        console.log(`\n${candidate.id} ${name}: line RTP by symbol and count`);
+        const bySymbol = new Map<string, Record<string, string>>();
+        for (const s of set.lineStats) {
+          const row = bySymbol.get(s.symbol) ?? {};
+          row[`x${s.count}`] = pct(s.rtp);
+          bySymbol.set(s.symbol, row);
+        }
+        console.table(Object.fromEntries(bySymbol));
         console.log(`with wild: ${pct(set.rtpLinesWithWild)} of ${pct(set.rtpLines)}`);
       }
     }
@@ -147,6 +151,7 @@ function main(): void {
       'FS spins avg': a.expectedFreeSpinsPerFeature.toFixed(2),
       'FS avg win (x bet)': a.featureMeanUncapped.toFixed(1),
       'base SD (x bet)': Math.sqrt(a.base.winVariance).toFixed(2),
+      'FS spin SD x1 (exact)': Math.sqrt(a.freeSpins.winVariance).toFixed(2),
       'SD (sim)': sim.roundWin.sd.toFixed(2),
       'max (sim)': `${sim.maxRound.win.toFixed(0)}x`,
       '>=1000x (sim)': sim.roundsAtLeast.find((t) => t.threshold === 1000)?.count ?? 0,
