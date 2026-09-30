@@ -27,7 +27,7 @@ export interface GameDefinition<S extends string = string> {
   /** Allowed total bets in credits. Each must be divisible by the payline count. */
   readonly betLevels: readonly number[];
   /** Design constraints checked by verify (not needed by the engine itself). */
-  readonly constraints: GameConstraints;
+  readonly constraints: GameConstraints<S>;
 }
 
 export type PayByCount = Readonly<Partial<Record<number, number>>>;
@@ -43,9 +43,13 @@ export interface FreeSpinRules {
   readonly winMultiplier: number;
 }
 
-export interface GameConstraints {
+export interface GameConstraints<S extends string = string> {
   /** 0-based reels that may contain the wild. */
   readonly wildReels: readonly number[];
+  /** Symbols allowed to repeat next to each other on a strip (stacks). */
+  readonly stackable: readonly S[];
+  /** Longest allowed run of one stackable symbol. Other symbols never repeat. */
+  readonly maxStack: number;
   /** Target RTP window, e.g. [0.95, 0.96]. */
   readonly targetRtp: readonly [number, number];
 }

@@ -69,6 +69,9 @@ export const DEEP_REEF_RULES: DeepReefRules = {
   betLevels: [20, 40, 100, 200, 400, 1000],
   constraints: {
     wildReels: [1, 2, 3],
+    // Premium stacks raise volatility without changing RTP (see docs/math-tuning.md).
+    stackable: ['SHARK', 'OCTOPUS'],
+    maxStack: 3,
     targetRtp: [0.95, 0.96],
   },
 };

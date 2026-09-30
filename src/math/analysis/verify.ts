@@ -3,6 +3,7 @@ import { SlotEngine } from '../engine/SlotEngine';
 import type { GameDefinition } from '../engine/types';
 import { Xoshiro128 } from '../rng/Xoshiro128';
 import { analyzeRound, type RoundAnalysis } from './exact';
+import { findLayoutViolations } from './layoutRules';
 
 export interface CheckResult {
   readonly name: string;
@@ -36,6 +37,19 @@ export function verifyGame<S extends string>(
 
     const stacked = scatterStacks(game, reels);
     check(`${name}: at most one scatter per reel window`, stacked.length === 0, stacked.length ? stacked.join('; ') : 'ok');
+
+    const layout = (name === 'base reels' ? def.baseReels : def.freeSpinReels).flatMap((strip, r) =>
+      findLayoutViolations(strip, {
+        scatter: def.scatter,
+        rowCount: def.rowCount,
+        stackable: def.constraints.stackable,
+        maxStack: def.constraints.maxStack,
+      }).map((v) => `reel ${r + 1}: ${v}`),
+    );
+    const stackRule = def.constraints.stackable.length
+      ? `stacks only for ${def.constraints.stackable.join('/')}, max ${def.constraints.maxStack}`
+      : 'no stacks';
+    check(`${name}: layout rules (${stackRule})`, layout.length === 0, layout.length ? layout.slice(0, 5).join('; ') : 'ok');
 
     const missing = def.symbols.filter((_, i) => !reels.some((strip) => strip.includes(i)));
     check(`${name}: every symbol appears on the reels`, missing.length === 0, missing.length ? `missing: ${missing.join(', ')}` : 'ok');
