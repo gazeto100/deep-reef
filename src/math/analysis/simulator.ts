@@ -1,6 +1,7 @@
 import { SlotEngine } from '../engine/SlotEngine';
 import type { GameDefinition, SpinResult } from '../engine/types';
 import { Xoshiro128 } from '../rng/Xoshiro128';
+import { SPIN_TAIL_THRESHOLDS } from './exact';
 
 /**
  * Monte Carlo simulation of complete rounds through the same SlotEngine.playRound the
@@ -81,6 +82,13 @@ export interface SimulationResult {
   /** RTP by source (x bet per round). */
   readonly contributions: readonly Contribution[];
   readonly roundsAtLeast: readonly { readonly threshold: number; readonly count: number }[];
+  /**
+   * What-if caps: rounds that would reach each cap and the RTP it would remove,
+   * E[(W - cap)+]. Exact for the simulated rounds as long as the real cap never bound.
+   */
+  readonly capScenarios: readonly { readonly cap: number; readonly rounds: number; readonly rtpLoss: number }[];
+  /** Free spins whose raw win (x bet, multiplier included) reached each threshold. */
+  readonly freeSpinTail: readonly { readonly threshold: number; readonly count: number }[];
 }
 
 class MomentAccumulator {
@@ -137,7 +145,10 @@ export function simulate<S extends string>(def: GameDefinition<S>, options: Simu
 
   const bucketCounts = new Array<number>(WIN_BUCKET_LABELS.length).fill(0);
   const bucketWins = new Array<number>(WIN_BUCKET_LABELS.length).fill(0);
-  const thresholds = [100, 200, 300, 400, 500, 1000, 2000, 5000];
+  const thresholds = [100, 200, 500, 1000, 1500, 2000, 2500, 3000, 4000, 5000];
+  const capCandidates = thresholds.filter((t) => t >= 1000);
+  const capExcess = new Array<number>(capCandidates.length).fill(0);
+  const freeSpinTail = new Array<number>(SPIN_TAIL_THRESHOLDS.length).fill(0);
   const atLeast = new Array<number>(thresholds.length).fill(0);
 
   const contribution = new Map<string, { kind: Contribution['kind']; base: number; freeSpins: number }>();
@@ -180,6 +191,9 @@ export function simulate<S extends string>(def: GameDefinition<S>, options: Simu
     thresholds.forEach((t, k) => {
       if (win >= t) atLeast[k] = (atLeast[k] ?? 0) + 1;
     });
+    capCandidates.forEach((cap, k) => {
+      if (win > cap) capExcess[k] = (capExcess[k] ?? 0) + (win - cap);
+    });
 
     const fs = round.freeSpins;
     if (fs) {
@@ -192,6 +206,9 @@ export function simulate<S extends string>(def: GameDefinition<S>, options: Simu
       freeSpinsPlayed += fs.spins.length;
       for (const spin of fs.spins) {
         freeSpinWin.add(spin.rawWin / bet);
+        SPIN_TAIL_THRESHOLDS.forEach((t, k) => {
+          if (spin.rawWin / bet >= t) freeSpinTail[k] = (freeSpinTail[k] ?? 0) + 1;
+        });
         if ((spin.scatter?.count ?? 0) >= def.freeSpins.triggerCount) retriggerSpins++;
         creditSpin(spin, 'freeSpins');
       }
@@ -234,5 +251,11 @@ export function simulate<S extends string>(def: GameDefinition<S>, options: Simu
       freeSpins: c.freeSpins / rounds,
     })),
     roundsAtLeast: thresholds.map((threshold, k) => ({ threshold, count: atLeast[k] ?? 0 })),
+    freeSpinTail: SPIN_TAIL_THRESHOLDS.map((threshold, k) => ({ threshold, count: freeSpinTail[k] ?? 0 })),
+    capScenarios: capCandidates.map((cap, k) => ({
+      cap,
+      rounds: atLeast[thresholds.indexOf(cap)] ?? 0,
+      rtpLoss: (capExcess[k] ?? 0) / rounds,
+    })),
   };
 }
