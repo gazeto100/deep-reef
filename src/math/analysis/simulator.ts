@@ -137,7 +137,7 @@ export function simulate<S extends string>(def: GameDefinition<S>, options: Simu
 
   const bucketCounts = new Array<number>(WIN_BUCKET_LABELS.length).fill(0);
   const bucketWins = new Array<number>(WIN_BUCKET_LABELS.length).fill(0);
-  const thresholds = [100, 500, 1000, 2000, 5000];
+  const thresholds = [100, 200, 300, 400, 500, 1000, 2000, 5000];
   const atLeast = new Array<number>(thresholds.length).fill(0);
 
   const contribution = new Map<string, { kind: Contribution['kind']; base: number; freeSpins: number }>();
