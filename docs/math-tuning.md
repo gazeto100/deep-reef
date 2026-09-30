@@ -69,12 +69,14 @@ exact uncapped value is an upper bound for the capped RTP.
 | Figure | Value | Status |
 |---|---|---|
 | RTP without cap | 95.519% | **exact** (full cycle + Wald's identity + Markov chain for retriggers) |
-| Effect of the 5000x cap | — | **estimated by the simulator**; it cannot bind in base (max base spin 101.5x) |
+| Effect of the 5000x cap | 0 hits in 2 × 10M rounds | **simulator**; it cannot bind in base (max base spin 101.5x). The largest observed round was 460x. |
 | Hit rate | 39.21% | **exact** |
 | FS trigger | 1 in 140 | **exact** |
 | Free spins per feature | 10.907 | **exact** (incl. 50-spin limit) |
 | Average feature win | 45.13x bet | **exact**, uncapped |
-| Overall volatility (SD) | — | **estimated by the simulator** |
+| Overall volatility (SD) | 4.985 ± 0.032 / 4.981 ± 0.033 | **simulator**, two seeds |
+
+Simulation results: [math-simulation.md](math-simulation.md).
 
 The full paytable with probabilities is in [math-report.md](math-report.md), generated with
 `npm run math:exact`.
