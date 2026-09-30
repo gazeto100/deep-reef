@@ -1,0 +1,25 @@
+{
+  "name": "deep-reef",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A 5x3, 20-line video slot with wild, scatter and free spins. It is a portfolio project built with TypeScript, PixiJS v8, React, Redux Toolkit and GSAP.",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gazeto100/deep-reef.git"
+  },
+  "scripts": {
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "math:exact": "tsx scripts/exact.ts",
+    "math:sim": "tsx scripts/simulate.ts",
+    "math:verify": "tsx scripts/verify.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
+  }
+}
