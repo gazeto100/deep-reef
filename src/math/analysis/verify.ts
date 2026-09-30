@@ -2,7 +2,7 @@ import { compileGame, type CompiledGame } from '../engine/compile';
 import { SlotEngine } from '../engine/SlotEngine';
 import type { GameDefinition } from '../engine/types';
 import { Xoshiro128 } from '../rng/Xoshiro128';
-import { analyzeRound, type RoundAnalysis } from './exact';
+import { analyzeRound, lineRtpFromFrequencies, type RoundAnalysis } from './exact';
 import { findLayoutViolations } from './layoutRules';
 
 export interface CheckResult {
@@ -55,6 +55,19 @@ export function verifyGame<S extends string>(
     check(`${name}: every symbol appears on the reels`, missing.length === 0, missing.length ? `missing: ${missing.join(', ')}` : 'ok');
   }
 
+  // Calculator cross-check: an independent, layout-free method must agree.
+  for (const [name, reels, set] of [
+    ['base', game.baseReels, a.base],
+    ['free spins', game.freeSpinReels, a.freeSpins],
+  ] as const) {
+    const byFrequency = lineRtpFromFrequencies(game, reels);
+    check(
+      `${name}: full-cycle line RTP matches the frequency method`,
+      Math.abs(byFrequency - set.rtpLines) < 1e-9,
+      `${pct(set.rtpLines, 6)} vs ${pct(byFrequency, 6)}`,
+    );
+  }
+
   // Pays
   const notMonotonic: string[] = [];
   for (const symbol of def.symbols) {
@@ -98,9 +111,9 @@ export function verifyGame<S extends string>(
   );
   const [lo, hi] = def.constraints.targetRtp;
   check(
-    `exact uncapped RTP within target ${pct(lo)}-${pct(hi)}`,
-    a.rtpUncapped >= lo && a.rtpUncapped <= hi,
-    `${pct(a.rtpUncapped, 3)} (upper bound; the cap only lowers it)`,
+    `exact RTP within target ${pct(lo)}-${pct(hi)} (uncapped, and capped upper bound)`,
+    a.rtpUncapped >= lo && a.rtpUncapped <= hi && a.rtpCappedUpperBound >= lo,
+    `uncapped ${pct(a.rtpUncapped, 3)}, capped <= ${pct(a.rtpCappedUpperBound, 3)}`,
   );
 
   // Determinism

@@ -23,6 +23,12 @@ export interface ReelSetAnalysis {
   readonly meanWin: number;
   readonly winVariance: number;
   readonly maxWin: number;
+  /** E[(multiplier × spin win − cap)+]: how far a single spin exceeds the round cap on average. */
+  readonly meanExcessOverCap: number;
+  /** P(multiplier × spin win >= cap): a single spin alone reaches the cap. */
+  readonly capReachProbability: number;
+  /** P(multiplier × spin win >= threshold) for SPIN_TAIL_THRESHOLDS (x bet). */
+  readonly tail: readonly { readonly threshold: number; readonly probability: number }[];
   readonly lineStats: readonly LineStat[];
   readonly scatterStats: readonly ScatterStat[];
 }
@@ -47,8 +53,16 @@ export interface ScatterStat {
   readonly rtp: number;
 }
 
-export function analyzeReelSet(game: CompiledGame, reels: readonly Uint8Array[]): ReelSetAnalysis {
+/** Single-spin win thresholds (x bet, multiplier included) whose exact probability is reported. */
+export const SPIN_TAIL_THRESHOLDS = [100, 500, 1000, 2000] as const;
+
+/**
+ * @param capMultiplier multiplier applied before comparing a spin with the round cap
+ *   (the free-spin multiplier for free-spin reels). Only affects the cap fields.
+ */
+export function analyzeReelSet(game: CompiledGame, reels: readonly Uint8Array[], capMultiplier = 1): ReelSetAnalysis {
   const { reelCount, rowCount, paylines, scatter, symbolCount } = game;
+  const cap = game.def.maxWinMultiplier;
   const lineCount = paylines.length;
   const stride = reelCount + 1;
   const triggerCount = game.def.freeSpins.triggerCount;
@@ -77,6 +91,9 @@ export function analyzeReelSet(game: CompiledGame, reels: readonly Uint8Array[])
   let sumWinSquared = 0;
   let hits = 0;
   let maxWin = 0;
+  let sumExcess = 0;
+  let capReaches = 0;
+  const tailCounts = new Float64Array(SPIN_TAIL_THRESHOLDS.length);
 
   const evaluateCombination = (scatters: number): void => {
     combinations++;
@@ -103,6 +120,14 @@ export function analyzeReelSet(game: CompiledGame, reels: readonly Uint8Array[])
     sumWinSquared += win * win;
     if (win > 0) hits++;
     if (win > maxWin) maxWin = win;
+    const scaled = win * capMultiplier;
+    if (scaled >= cap) {
+      capReaches++;
+      sumExcess += scaled - cap;
+    }
+    for (let k = 0; k < SPIN_TAIL_THRESHOLDS.length; k++) {
+      if (scaled >= (SPIN_TAIL_THRESHOLDS[k] ?? Infinity)) tailCounts[k] = (tailCounts[k] ?? 0) + 1;
+    }
   };
 
   // Depth-first walk over reels: column r is rewritten only when its stop changes.
@@ -159,9 +184,46 @@ export function analyzeReelSet(game: CompiledGame, reels: readonly Uint8Array[])
     meanWin,
     winVariance: sumWinSquared / combinations - meanWin * meanWin,
     maxWin,
+    meanExcessOverCap: sumExcess / combinations,
+    capReachProbability: capReaches / combinations,
+    tail: SPIN_TAIL_THRESHOLDS.map((threshold, k) => ({ threshold, probability: (tailCounts[k] ?? 0) / combinations })),
     lineStats,
     scatterStats,
   };
+}
+
+/**
+ * Line RTP by an independent method that uses only symbol frequencies per reel, not
+ * the strip layout. Each line sees one row per reel, and every row of a reel is
+ * uniformly distributed with the reel's symbol frequencies, so per-line EV depends
+ * only on the counts. It must equal the full-cycle rtpLines. Verify uses it to
+ * cross-check the calculator.
+ */
+export function lineRtpFromFrequencies(game: CompiledGame, reels: readonly Uint8Array[]): number {
+  const freq = reels.map((strip) => {
+    const f = new Float64Array(game.symbolCount);
+    for (const s of strip) f[s] = (f[s] ?? 0) + 1 / strip.length;
+    return f;
+  });
+  const line = new Uint8Array(game.reelCount);
+  let ev = 0;
+  const walk = (reel: number, probability: number): void => {
+    if (reel === game.reelCount) {
+      const packed = evaluateLine(game, line);
+      if (packed !== 0) ev += probability * linePayOf(game, unpackSymbol(packed), unpackCount(packed));
+      return;
+    }
+    const f = freq[reel];
+    for (let s = 0; s < game.symbolCount; s++) {
+      const q = f?.[s] ?? 0;
+      if (q === 0) continue;
+      line[reel] = s;
+      walk(reel + 1, probability * q);
+    }
+  };
+  walk(0, 1);
+  // Per-line EV in line bets = line RTP, since all lines share it and total bet = lines × line bet.
+  return ev;
 }
 
 function usesWild(lineSymbols: Uint8Array, count: number, wild: number): boolean {
@@ -208,8 +270,18 @@ export interface RoundAnalysis {
   readonly featureMeanUncapped: number;
   readonly rtpBase: number;
   readonly rtpFeatureUncapped: number;
-  /** Exact RTP without the cap. It is an upper bound for the capped RTP. */
+  /** Exact RTP without the cap. */
   readonly rtpUncapped: number;
+  /**
+   * Exact lower bound on the RTP removed by the cap: E[N] × E[(single free spin − cap)+]
+   * per trigger (+ the base-game term). It holds because a round's uncapped win is at
+   * least the sum of its spins' excesses over the cap, and Wald applies to that sum.
+   */
+  readonly capLossLowerBound: number;
+  /** Exact upper bound on the capped RTP: rtpUncapped − capLossLowerBound. */
+  readonly rtpCappedUpperBound: number;
+  /** P(a single free spin alone reaches the cap), per round. */
+  readonly singleSpinCapProbabilityPerRound: number;
   /** Exact; equals the round hit rate because every trigger also pays scatters. */
   readonly hitRate: number;
   readonly triggerProbability: number;
@@ -220,15 +292,18 @@ export interface RoundAnalysis {
 }
 
 export function analyzeRound(game: CompiledGame): RoundAnalysis {
-  const base = analyzeReelSet(game, game.baseReels);
-  const freeSpins = analyzeReelSet(game, game.freeSpinReels);
   const { winMultiplier } = game.def.freeSpins;
+  const base = analyzeReelSet(game, game.baseReels);
+  const freeSpins = analyzeReelSet(game, game.freeSpinReels, winMultiplier);
 
   const expectedSpins = expectedFreeSpins(game, freeSpins.triggerProbability);
   // Wald's identity: E[sum of N spin wins] = E[N] * E[spin win]. It holds because the
   // decision to play spin i depends only on spins 1..i-1.
   const featureMeanUncapped = expectedSpins * freeSpins.meanWin * winMultiplier;
   const rtpFeatureUncapped = base.triggerProbability * featureMeanUncapped;
+  const rtpUncapped = base.rtp + rtpFeatureUncapped;
+  const freeSpinsPerRound = base.triggerProbability * expectedSpins;
+  const capLossLowerBound = base.meanExcessOverCap + freeSpinsPerRound * freeSpins.meanExcessOverCap;
 
   return {
     base,
@@ -237,7 +312,10 @@ export function analyzeRound(game: CompiledGame): RoundAnalysis {
     featureMeanUncapped,
     rtpBase: base.rtp,
     rtpFeatureUncapped,
-    rtpUncapped: base.rtp + rtpFeatureUncapped,
+    rtpUncapped,
+    capLossLowerBound,
+    rtpCappedUpperBound: rtpUncapped - capLossLowerBound,
+    singleSpinCapProbabilityPerRound: base.capReachProbability + freeSpinsPerRound * freeSpins.capReachProbability,
     hitRate: base.hitRate,
     triggerProbability: base.triggerProbability,
     baseMaxWin: base.maxWin,
