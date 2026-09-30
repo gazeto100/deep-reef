@@ -64,7 +64,9 @@ export const DEEP_REEF_RULES: DeepReefRules = {
     maxTotal: 50,
     winMultiplier: 2,
   },
-  maxWinMultiplier: 5000,
+  // Chosen from the simulated tail (docs/math-simulation.md): reached about 1 in 4M
+  // rounds, costs ~0.005% RTP, and is a max win the game really reaches.
+  maxWinMultiplier: 2000,
   // Total bet in credits; line bet = total / 20.
   betLevels: [20, 40, 100, 200, 400, 1000],
   constraints: {
@@ -72,6 +74,6 @@ export const DEEP_REEF_RULES: DeepReefRules = {
     // Premium stacks raise volatility without changing RTP (see docs/math-tuning.md).
     stackable: ['SHARK', 'OCTOPUS'],
     maxStack: 3,
-    targetRtp: [0.95, 0.96],
+    targetRtp: [0.953, 0.958],
   },
 };
