@@ -1,6 +1,8 @@
 import { writeFileSync } from 'node:fs';
 import { analyzeRound } from '../../src/math/analysis/exact';
+import { reelFingerprint } from '../../src/math/analysis/fingerprint';
 import { simulate } from '../../src/math/analysis/simulator';
+import { DEEP_REEF } from '../../src/math/config/deepReef';
 import { compileGame } from '../../src/math/engine/compile';
 import type { GameDefinition, PayByCount } from '../../src/math/engine/types';
 import { DEEP_REEF_RULES, type DeepReefSymbol } from '../../src/math/config/deepReefRules';
@@ -14,17 +16,22 @@ import { layoutStrip } from './layoutStrip';
  *   npm run math:tune -- v3 --detail -> RTP by symbol for base and free-spin reels
  *   npm run math:tune -- v3 --emit  -> also print the reel strips as JSON
  *   npm run math:tune -- v3 --write -> freeze the candidate into src/math/config/deepReef.ts
+ *                                      (refuses to change the base reels unless --allow-base-change)
  *   --rounds N                      -> rounds of the quick SD/tail simulation (default 2M, seed 1)
  */
 
 export function buildDefinition(candidate: Candidate): GameDefinition<DeepReefSymbol> {
-  const usesStacks = candidate.baseStacks !== undefined || candidate.freeSpinStacks !== undefined;
+  // The stack rule is enabled per reel set, and only when that set declares stacks (even
+  // empty ones, as v10-v12 did for base). A set without stacks is laid out under the
+  // original no-neighbours rule and so reproduces the pre-stack strips exactly. Enabling
+  // the rule changes which shuffle attempt is accepted first, even with the same seed.
   const layout = (
     counts: Candidate['baseReels'],
     stacks: Candidate['baseStacks'],
     seedOffset: number,
   ): DeepReefSymbol[][] =>
     counts.map((c, reel) => {
+      const usesStacks = stacks !== undefined;
       const reelStacks = stacks?.[reel];
       return layoutStrip<DeepReefSymbol>(c, {
         scatter: DEEP_REEF_RULES.scatter,
@@ -130,6 +137,14 @@ function main(): void {
     }
 
     if (args.includes('--write')) {
+      const current = reelFingerprint(DEEP_REEF.baseReels);
+      const next = reelFingerprint(def.baseReels);
+      if (current !== next && !args.includes('--allow-base-change')) {
+        throw new Error(
+          `${candidate.id} would change the base reels (${current} -> ${next}). ` +
+            'Pass --allow-base-change if that is intended, and update the pinned fingerprint in deepReef.test.ts.',
+        );
+      }
       writeFileSync(CONFIG_PATH, renderConfig(candidate, def));
       console.log(`wrote ${CONFIG_PATH} from ${candidate.id}`);
     }
