@@ -1,45 +1,35 @@
+import { findLayoutViolations, type LayoutRules } from '../../src/math/analysis/layoutRules';
 import { Xoshiro128 } from '../../src/math/rng/Xoshiro128';
 
 export type SymbolCounts<S extends string> = Readonly<Partial<Record<S, number>>>;
 
+/** Stack heights per symbol, e.g. { SHARK: [3, 2] } = one stack of 3 and one of 2. */
+export type StackSpec<S extends string> = Readonly<Partial<Record<S, readonly number[]>>>;
+
 /**
- * Turns symbol counts into a concrete reel strip. The layout is a seeded shuffle,
- * repeated until the strip meets the layout rules, so the result is reproducible.
- *
- * Layout rules:
- * - No two identical symbols next to each other (circular), so no stacks.
- * - Scatters are at least `rowCount` apart (circular), so a window never shows two
- *   scatters from the same reel.
+ * Turns symbol counts (plus optional stacks) into a concrete reel strip. It does a
+ * seeded shuffle of singles and whole stacks, repeated until the strip passes the
+ * shared layout rules (src/math/analysis/layoutRules.ts). The result is reproducible.
  */
 export function layoutStrip<S extends string>(
   counts: SymbolCounts<S>,
-  options: { readonly scatter: S; readonly rowCount: number; readonly seed: number },
+  options: LayoutRules<S> & { readonly seed: number; readonly stacks?: StackSpec<S> },
 ): S[] {
-  const strip: S[] = [];
+  const blocks: S[][] = [];
   for (const [symbol, count] of Object.entries(counts) as [S, number | undefined][]) {
-    for (let i = 0; i < (count ?? 0); i++) strip.push(symbol);
+    for (let i = 0; i < (count ?? 0); i++) blocks.push([symbol]);
+  }
+  for (const [symbol, heights] of Object.entries(options.stacks ?? {}) as [S, readonly number[] | undefined][]) {
+    for (const h of heights ?? []) blocks.push(new Array<S>(h).fill(symbol));
   }
 
   const rng = new Xoshiro128(options.seed);
-  for (let attempt = 0; attempt < 100_000; attempt++) {
-    shuffle(strip, rng);
-    if (isValidLayout(strip, options.scatter, options.rowCount)) return strip;
+  for (let attempt = 0; attempt < 200_000; attempt++) {
+    shuffle(blocks, rng);
+    const strip = blocks.flat();
+    if (findLayoutViolations(strip, options).length === 0) return strip;
   }
-  throw new Error(`could not lay out strip ${JSON.stringify(counts)}`);
-}
-
-export function isValidLayout<S extends string>(strip: readonly S[], scatter: S, rowCount: number): boolean {
-  const n = strip.length;
-  for (let i = 0; i < n; i++) {
-    const symbol = strip[i];
-    if (symbol === strip[(i + 1) % n]) return false;
-    if (symbol === scatter) {
-      for (let d = 1; d < rowCount; d++) {
-        if (strip[(i + d) % n] === scatter) return false;
-      }
-    }
-  }
-  return true;
+  throw new Error(`could not lay out strip ${JSON.stringify(counts)} with stacks ${JSON.stringify(options.stacks ?? {})}`);
 }
 
 function shuffle<T>(items: T[], rng: Xoshiro128): void {

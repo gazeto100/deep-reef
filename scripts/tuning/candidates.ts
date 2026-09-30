@@ -1,6 +1,6 @@
 import type { PayByCount } from '../../src/math/engine/types';
 import type { DeepReefSymbol } from '../../src/math/config/deepReefRules';
-import type { SymbolCounts } from './layoutStrip';
+import type { StackSpec, SymbolCounts } from './layoutStrip';
 
 /**
  * Tuning history. Each entry is one iteration of pays and reel composition. Any of
@@ -14,10 +14,17 @@ export interface Candidate {
   readonly scatterPays: PayByCount;
   readonly baseReels: readonly SymbolCounts<DeepReefSymbol>[];
   readonly freeSpinReels: readonly SymbolCounts<DeepReefSymbol>[];
+  /**
+   * Premium stacks per reel (v9+). Candidates without stacks are laid out under the
+   * original no-neighbours rule, so v1-v8 still regenerate their exact strips.
+   */
+  readonly baseStacks?: readonly Stacks[];
+  readonly freeSpinStacks?: readonly Stacks[];
   readonly layoutSeed: number;
 }
 
 type Counts = SymbolCounts<DeepReefSymbol>;
+type Stacks = StackSpec<'SHARK' | 'OCTOPUS'>;
 
 const PAYS_V1: Candidate['linePays'] = {
   SHARK: { 3: 25, 4: 100, 5: 500 },

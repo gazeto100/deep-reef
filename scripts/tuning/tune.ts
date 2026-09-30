@@ -1,5 +1,6 @@
 import { writeFileSync } from 'node:fs';
 import { analyzeRound } from '../../src/math/analysis/exact';
+import { simulate } from '../../src/math/analysis/simulator';
 import { compileGame } from '../../src/math/engine/compile';
 import type { GameDefinition, PayByCount } from '../../src/math/engine/types';
 import { DEEP_REEF_RULES, type DeepReefSymbol } from '../../src/math/config/deepReefRules';
@@ -13,24 +14,34 @@ import { layoutStrip } from './layoutStrip';
  *   npm run math:tune -- v3 --detail -> RTP by symbol for base and free-spin reels
  *   npm run math:tune -- v3 --emit  -> also print the reel strips as JSON
  *   npm run math:tune -- v3 --write -> freeze the candidate into src/math/config/deepReef.ts
+ *   --rounds N                      -> rounds of the quick SD/tail simulation (default 2M, seed 1)
  */
 
 export function buildDefinition(candidate: Candidate): GameDefinition<DeepReefSymbol> {
-  const layout = (counts: Candidate['baseReels'], seedOffset: number): DeepReefSymbol[][] =>
-    counts.map((c, reel) =>
-      layoutStrip(c, {
+  const usesStacks = candidate.baseStacks !== undefined || candidate.freeSpinStacks !== undefined;
+  const layout = (
+    counts: Candidate['baseReels'],
+    stacks: Candidate['baseStacks'],
+    seedOffset: number,
+  ): DeepReefSymbol[][] =>
+    counts.map((c, reel) => {
+      const reelStacks = stacks?.[reel];
+      return layoutStrip<DeepReefSymbol>(c, {
         scatter: DEEP_REEF_RULES.scatter,
         rowCount: DEEP_REEF_RULES.rowCount,
+        stackable: usesStacks ? DEEP_REEF_RULES.constraints.stackable : [],
+        maxStack: usesStacks ? DEEP_REEF_RULES.constraints.maxStack : 1,
         seed: candidate.layoutSeed * 1000 + seedOffset + reel,
-      }),
-    );
+        ...(reelStacks ? { stacks: reelStacks } : {}),
+      });
+    });
 
   return {
     ...DEEP_REEF_RULES,
     linePays: candidate.linePays,
     scatterPays: candidate.scatterPays,
-    baseReels: layout(candidate.baseReels, 0),
-    freeSpinReels: layout(candidate.freeSpinReels, 100),
+    baseReels: layout(candidate.baseReels, candidate.baseStacks, 0),
+    freeSpinReels: layout(candidate.freeSpinReels, candidate.freeSpinStacks, 100),
   };
 }
 
@@ -86,7 +97,9 @@ ${reelSet(def.freeSpinReels)}
 function main(): void {
   const args = process.argv.slice(2);
   const emit = args.includes('--emit');
-  const ids = args.filter((a) => !a.startsWith('--'));
+  const roundsFlag = args.indexOf('--rounds');
+  const quickRounds = roundsFlag >= 0 ? Number(args[roundsFlag + 1]) : 2_000_000;
+  const ids = args.filter((a, i) => !a.startsWith('--') && i !== roundsFlag + 1);
   const selected = ids.length > 0 ? CANDIDATES.filter((c) => ids.includes(c.id)) : CANDIDATES;
   if (selected.length === 0) throw new Error(`unknown candidate(s): ${ids.join(', ')}`);
 
@@ -94,6 +107,9 @@ function main(): void {
     const started = performance.now();
     const def = buildDefinition(candidate);
     const a = analyzeRound(compileGame(def));
+    // SD and the tail cannot be computed exactly (feature variance with retriggers),
+    // so a quick simulation estimates them during tuning.
+    const sim = simulate(def, { rounds: quickRounds, seed: 1, totalBet: DEEP_REEF_RULES.betLevels[0] ?? 20 });
     const seconds = ((performance.now() - started) / 1000).toFixed(1);
 
     if (args.includes('--detail')) {
@@ -131,6 +147,9 @@ function main(): void {
       'FS spins avg': a.expectedFreeSpinsPerFeature.toFixed(2),
       'FS avg win (x bet)': a.featureMeanUncapped.toFixed(1),
       'base SD (x bet)': Math.sqrt(a.base.winVariance).toFixed(2),
+      'SD (sim)': sim.roundWin.sd.toFixed(2),
+      'max (sim)': `${sim.maxRound.win.toFixed(0)}x`,
+      '>=1000x (sim)': sim.roundsAtLeast.find((t) => t.threshold === 1000)?.count ?? 0,
       's': seconds,
     };
   });
