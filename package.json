@@ -12,6 +12,7 @@
     "typecheck": "tsc -b",
     "test": "vitest run",
     "test:watch": "vitest",
+    "math:tune": "tsx scripts/tuning/tune.ts",
     "math:exact": "tsx scripts/exact.ts",
     "math:sim": "tsx scripts/simulate.ts",
     "math:verify": "tsx scripts/verify.ts"
