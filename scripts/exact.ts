@@ -27,7 +27,7 @@ section(
       [`Cap loss (${a.maxWinMultiplier}x), lower bound`, pct(a.capLossLowerBound, 4), 'exact: E[free spins] x E[(single spin - cap)+] (Wald)'],
       ['**RTP with cap, upper bound**', `**≤ ${pct(a.rtpCappedUpperBound, 3)}**`, 'exact bound; the simulator estimates the rest of the cap loss'],
       ['A single spin reaches the cap', oneIn(a.singleSpinCapProbabilityPerRound), 'exact, per round'],
-      ['Hit rate', pct(a.hitRate, 2), 'exact (every trigger also pays scatters)'],
+      ['Hit rate', pct(a.hitRate, 4), 'exact (every trigger also pays scatters)'],
       ['Free spins trigger', oneIn(a.triggerProbability), 'exact'],
       ['Retrigger per free spin', oneIn(a.freeSpins.triggerProbability), 'exact'],
       ['Free spins per feature', a.expectedFreeSpinsPerFeature.toFixed(3), 'exact (Markov chain incl. 50-spin limit)'],

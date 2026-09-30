@@ -120,21 +120,64 @@ The cap is chosen from the v12 tail (2 × 10M rounds, simulated with a 5000x cap
 - **real:** players can actually reach it, with a single free spin doing so about 1 in
   1.6M rounds, so "win up to 2000x" is an honest claim;
 - **cheap:** it removes only a few hundredths of a percent of RTP;
-- **provable:** the capped RTP stays in range, with an exact upper bound of 95.526%.
+- **provable:** the capped RTP stays in range, with an exact upper bound of 95.526% for v12
+  and 95.639% for v13.
 
-## Final (v12): exact vs estimated
+## Review fixes (v13)
+
+**1. Strict rank order in the paytable.** v12 broke the rank order for 3-of-a-kind
+(OCTOPUS 25 < TURTLE 30, SHARK = TURTLE, K = Q = J) and for Q/J 4-of-a-kind. The new rule
+is that for every count, a higher rank pays strictly more:
+SHARK > OCTOPUS > TURTLE > SEAHORSE > PUFFER > A > K > Q > J. It is declared as
+`constraints.payRank` and checked by verify.
+
+| | 3 of a kind | 4 of a kind |
+|---|---|---|
+| v12 | SHARK 30, OCTOPUS 25, TURTLE 30, K/Q/J 10/10/10 | Q/J 20/20 |
+| v13 | SHARK 36, OCTOPUS 30, TURTLE 24, K/Q/J 11/10/9 | Q/J 21/20 |
+
+The prediction came from the per-count pay-unit contributions of v10/v11: about +0.1
+RTP. The result was +0.11 (95.554 → 95.667%). It took one iteration, and the hit rate and SD
+barely move because pays do not change which lines win.
+
+**2. Base reel 4 had drifted in v10–v12.** Those candidates declared *empty* base
+stacks (`baseStacks: five({})`). Because the stack flag was global, that enabled the
+stack rule for the base reels too. With the same seed, the layout loop accepts the first
+shuffle that passes the rules. For reel 4 that first shuffle contained SHARK SHARK, which
+the old rule had rejected. The counts did not change, so RTP was identical, but the strip
+did. Fixes:
+- The stack rule is now decided **per reel set**, and v13 declares no base stacks, so
+  its base reels are **byte-identical to v8** (checked by diffing against the v8 config).
+- `tune --write` **refuses** to change the base reels unless `--allow-base-change` is
+  passed. v13 needed it on purpose, to restore v8.
+- A test pins the fingerprint of the released strips (`deepReef.test.ts`).
+- The exact hit rate was recomputed on the final strips: **39.214408%**. It is identical
+  to v12 because reel 4 cannot create or remove a hit (a win needs reels 1–3; reel 4 only
+  extends it). The base SD does differ (2.4024 → 2.3907), which confirms the calculation
+  really ran on different strips.
+
+v10–v12 keep their original definition, so their recorded numbers stay reproducible.
+
+| # | Change | Base lines | Base scatter | FS | **RTP (uncapped)** | RTP capped (bound) | Hit rate | **SD (sim)** |
+|---|---|---|---|---|---|---|---|---|
+| v12 | (see above) | 62.16% | 2.13% | 31.27% | 95.554% | ≤ 95.526% | 39.2144% | 8.03 |
+| **v13** | Strict rank order; base reels = v8 | 61.94% | 2.13% | 31.60% | **95.667%** | **≤ 95.639%** | **39.2144%** | **8.02** |
+
+## Final (v13): exact vs estimated
 
 | Figure | Value | Status |
 |---|---|---|
-| RTP without cap | 95.554% | **exact** (full cycle + Wald + Markov chain) |
-| RTP with the 2000x cap | ≤ 95.526% | **exact upper bound**; the cap loss is at least 0.028% |
-| Cap loss beyond the bound | 0.003–0.006% measured | **simulator** (rounds where several spins add up past 2000x) |
-| Hit rate | 39.21% | **exact** |
+| RTP without cap | 95.667% | **exact** (full cycle + Wald + Markov chain) |
+| RTP with the 2000x cap | ≤ 95.639% | **exact upper bound**; the cap loss is at least 0.028% |
+| Cap loss (measured) | 0.016–0.020% | **simulator**, 6 and 4 cap hits in 2 × 10M rounds. This is below the exact expectation of ≥ 0.028% only through sampling noise: about 6 such events are expected per 10M rounds. |
+| Hit rate | 39.2144% | **exact** |
 | FS trigger | 1 in 140 | **exact** |
 | Free spins per feature | 10.907 | **exact** |
-| Average feature win | 43.89x bet (uncapped) | **exact** |
+| Average feature win | 44.35x bet (uncapped) | **exact** |
 | Largest base spin | 259x | **exact**, so the cap never binds in base |
-| Overall volatility (SD) | 8.29 ± 0.24 / 7.94 ± 0.22 | **simulator**, two seeds (medium) |
+| Overall volatility (SD) | 8.25 ± 0.25 / 8.19 ± 0.23 | **simulator**, two seeds (medium) |
+
+The v13 run with the two standard seeds has all 18 comparisons within the 95% CI.
 
 ### Extended validation of the simulator (v12)
 

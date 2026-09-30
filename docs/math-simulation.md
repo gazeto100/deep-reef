@@ -7,100 +7,100 @@ compares them with the exact calculator ([math-report.md](math-report.md)).
 
 ### Simulation vs exact (95% confidence interval = ±1.96 SE)
 
-| Metric                                       | Exact              | Seed 20240601                              | z     | 95% CI | Seed 777                                   | z     | 95% CI      |
-|----------------------------------------------|--------------------|--------------------------------------------|-------|--------|--------------------------------------------|-------|-------------|
-| RTP (capped; exact = upper bound)            | 95.526%            | 95.699% ± 0.514%                           | 0.66  | inside | 94.894% ± 0.492%                           | -2.52 | **outside** |
-| Base game RTP                                | 64.288%            | 64.261% ± 0.150%                           | -0.35 | inside | 64.253% ± 0.148%                           | -0.46 | inside      |
-| Free spins RTP (capped; exact = upper bound) | 31.238%            | 31.438% ± 0.485%                           | 0.81  | inside | 30.641% ± 0.463%                           | -2.53 | **outside** |
-| Hit rate                                     | 39.214%            | 39.208% ± 0.030%                           | -0.42 | inside | 39.232% ± 0.030%                           | 1.15  | inside      |
-| FS trigger probability                       | 0.7124% (1 in 140) | 0.7106% (1 in 141) ± 0.0052% (1 in 19,183) | -0.69 | inside | 0.7061% (1 in 142) ± 0.0052% (1 in 19,183) | -2.39 | **outside** |
-| Retrigger per free spin                      | 0.832%             | 0.831% ± 0.020%                            | -0.12 | inside | 0.831% ± 0.020%                            | -0.12 | inside      |
-| Free spins per feature                       | 10.907             | 10.905 ± 0.024                             | -0.16 | inside | 10.906 ± 0.024                             | -0.12 | inside      |
-| Single free spin win (x bet)                 | 4.0235             | 4.0575 ± 0.0545                            | 1.22  | inside | 3.9795 ± 0.0518                            | -1.67 | inside      |
-| Feature win (x bet)                          | 43.89              | 44.24 ± 0.60                               | 1.16  | inside | 43.40 ± 0.57                               | -1.68 | inside      |
+| Metric                                       | Exact              | Seed 20240601                              | z     | 95% CI | Seed 777                                   | z     | 95% CI |
+|----------------------------------------------|--------------------|--------------------------------------------|-------|--------|--------------------------------------------|-------|--------|
+| RTP (capped; exact = upper bound)            | 95.639%            | 95.760% ± 0.511%                           | 0.47  | inside | 95.770% ± 0.508%                           | 0.51  | inside |
+| Base game RTP                                | 64.067%            | 64.043% ± 0.148%                           | -0.31 | inside | 64.079% ± 0.148%                           | 0.16  | inside |
+| Free spins RTP (capped; exact = upper bound) | 31.572%            | 31.717% ± 0.483%                           | 0.59  | inside | 31.691% ± 0.479%                           | 0.49  | inside |
+| Hit rate                                     | 39.214%            | 39.206% ± 0.030%                           | -0.56 | inside | 39.238% ± 0.030%                           | 1.55  | inside |
+| FS trigger probability                       | 0.7124% (1 in 140) | 0.7137% (1 in 140) ± 0.0052% (1 in 19,183) | 0.48  | inside | 0.7121% (1 in 140) ± 0.0052% (1 in 19,183) | -0.12 | inside |
+| Retrigger per free spin                      | 0.832%             | 0.837% ± 0.020%                            | 0.45  | inside | 0.845% ± 0.020%                            | 1.29  | inside |
+| Free spins per feature                       | 10.907             | 10.913 ± 0.024                             | 0.44  | inside | 10.923 ± 0.024                             | 1.26  | inside |
+| Single free spin win (x bet)                 | 4.0664             | 4.0742 ± 0.0540                            | 0.28  | inside | 4.0768 ± 0.0535                            | 0.38  | inside |
+| Feature win (x bet)                          | 44.35              | 44.44 ± 0.59                               | 0.28  | inside | 44.50 ± 0.59                               | 0.50  | inside |
 
 z = (sim − exact) / SE. Each comparison has a 5% chance of landing outside by luck alone. The FS metrics are correlated (more retriggers mean more spins and a bigger feature win), so they tend to drift together.
 
-**Heavy tail caveat.** The exact capped RTP is bounded above by 95.526% (uncapped 95.554% minus the exact lower bound on the cap loss, 0.028%). A noticeable part of the RTP sits in free spins that are rarer than 1 in a million rounds (see the tail table), so 10,000,000 rounds sample them only a handful of times. The sample SD then underestimates the true SD, and RTP/feature estimates are more often slightly low than slightly high. The tail table below is the sharper test of the engine: it compares event counts with exact probabilities.
+**Heavy tail caveat.** The exact capped RTP is bounded above by 95.639% (uncapped 95.667% minus the exact lower bound on the cap loss, 0.028%). A noticeable part of the RTP sits in free spins that are rarer than 1 in a million rounds (see the tail table), so 10,000,000 rounds sample them only a handful of times. The sample SD then underestimates the true SD, and RTP/feature estimates are more often slightly low than slightly high. The tail table below is the sharper test of the engine: it compares event counts with exact probabilities.
 
 ### Tail events: simulated free spins vs exact probability
 
 | Single free spin win | Exact P per spin | Seed 20240601: observed | expected | z (Poisson) | Seed 777: observed | expected | z (Poisson) |
 |----------------------|------------------|-------------------------|----------|-------------|--------------------|----------|-------------|
-| >= 100x              | 1 in 222         | 3581                    | 3494.3   | 1.47        | 3359               | 3472.2   | -1.92       |
-| >= 500x              | 1 in 1,538       | 553                     | 503.7    | 2.20        | 491                | 500.6    | -0.43       |
-| >= 1000x             | 1 in 9,843       | 84                      | 78.7     | 0.59        | 79                 | 78.2     | 0.09        |
-| >= 2000x             | 1 in 127,179     | 3                       | 6.1      | -1.25       | 2                  | 6.1      | -1.65       |
+| >= 100x              | 1 in 219         | 3575                    | 3555.3   | 0.33        | 3516               | 3550.6   | -0.58       |
+| >= 500x              | 1 in 1,538       | 500                     | 506.3    | -0.28       | 526                | 505.6    | 0.91        |
+| >= 1000x             | 1 in 9,835       | 90                      | 79.2     | 1.21        | 82                 | 79.1     | 0.33        |
+| >= 2000x             | 1 in 127,179     | 5                       | 6.1      | -0.45       | 4                  | 6.1      | -0.86       |
 
 ### Volatility (SD of round win, x bet)
 
 |                                       | Seed 20240601 | Seed 777      |
 |---------------------------------------|---------------|---------------|
-| SD ± 95% CI                           | 8.287 ± 0.239 | 7.939 ± 0.218 |
+| SD ± 95% CI                           | 8.249 ± 0.246 | 8.194 ± 0.230 |
 | Class (<5 low, 5-15 medium, >15 high) | medium        | medium        |
-| Base game only (exact 2.402)          | 2.413         | 2.394         |
+| Base game only (exact 2.391)          | 2.388         | 2.385         |
 
 The SD confidence interval uses the delta method with the 4th central moment. With heavy-tailed wins it is optimistic, which is why two seeds are compared.
 
 ### Max win and the 2000x cap
 
-|                         | Seed 20240601                    | Seed 777                         |
-|-------------------------|----------------------------------|----------------------------------|
-| Largest round (x bet)   | 2000.0x (round #7,596,922, 8 FS) | 2000.0x (round #2,171,482, 3 FS) |
-| Largest feature (x bet) | 1998.0x                          | 1998.0x                          |
-| Rounds that hit the cap | 3                                | 2                                |
-| RTP removed by the cap  | 0.0056%                          | 0.0032%                          |
-| Rounds >= 100x          | 7774 (1 in 1,286)                | 7550 (1 in 1,325)                |
-| Rounds >= 200x          | 2106 (1 in 4,748)                | 1985 (1 in 5,038)                |
-| Rounds >= 500x          | 586 (1 in 17,065)                | 525 (1 in 19,048)                |
-| Rounds >= 1000x         | 87 (1 in 114,943)                | 84 (1 in 119,048)                |
-| Rounds >= 1500x         | 23 (1 in 434,783)                | 17 (1 in 588,235)                |
-| Rounds >= 2000x         | 3 (1 in 3,333,333)               | 2 (1 in 5,000,000)               |
-| Rounds >= 2500x         | 0 (never)                        | 0 (never)                        |
-| Rounds >= 3000x         | 0 (never)                        | 0 (never)                        |
-| Rounds >= 4000x         | 0 (never)                        | 0 (never)                        |
-| Rounds >= 5000x         | 0 (never)                        | 0 (never)                        |
+|                         | Seed 20240601                    | Seed 777                       |
+|-------------------------|----------------------------------|--------------------------------|
+| Largest round (x bet)   | 2000.0x (round #1,454,939, 6 FS) | 2000.0x (round #849,306, 4 FS) |
+| Largest feature (x bet) | 1998.0x                          | 1998.0x                        |
+| Rounds that hit the cap | 6                                | 4                              |
+| RTP removed by the cap  | 0.0163%                          | 0.0199%                        |
+| Rounds >= 100x          | 7786 (1 in 1,284)                | 7703 (1 in 1,298)              |
+| Rounds >= 200x          | 2091 (1 in 4,782)                | 2127 (1 in 4,701)              |
+| Rounds >= 500x          | 534 (1 in 18,727)                | 559 (1 in 17,889)              |
+| Rounds >= 1000x         | 94 (1 in 106,383)                | 90 (1 in 111,111)              |
+| Rounds >= 1500x         | 26 (1 in 384,615)                | 21 (1 in 476,190)              |
+| Rounds >= 2000x         | 6 (1 in 1,666,667)               | 4 (1 in 2,500,000)             |
+| Rounds >= 2500x         | 0 (never)                        | 0 (never)                      |
+| Rounds >= 3000x         | 0 (never)                        | 0 (never)                      |
+| Rounds >= 4000x         | 0 (never)                        | 0 (never)                      |
+| Rounds >= 5000x         | 0 (never)                        | 0 (never)                      |
 
-Upper bound on an uncapped round: max base spin 259.0x + 50 free spins × 5000.0x = 250259x. The cap is therefore reachable in principle.
+Upper bound on an uncapped round: max base spin 151.0x + 50 free spins × 5000.0x = 250151x. The cap is therefore reachable in principle.
 
 ### What-if caps (from the simulated rounds)
 
 | Cap             | Seed 20240601: rounds reaching it | frequency      | RTP removed | Seed 777: rounds reaching it | frequency      | RTP removed |
 |-----------------|-----------------------------------|----------------|-------------|------------------------------|----------------|-------------|
-| 1000x           | 87                                | 1 in 114,943   | 0.2360%     | 84                           | 1 in 119,048   | 0.1548%     |
-| 1500x           | 23                                | 1 in 434,783   | 0.0433%     | 17                           | 1 in 588,235   | 0.0243%     |
-| 2000x (current) | 3                                 | 1 in 3,333,333 | 0.0000%     | 2                            | 1 in 5,000,000 | 0.0000%     |
+| 1000x           | 94                                | 1 in 106,383   | 0.2567%     | 90                           | 1 in 111,111   | 0.1962%     |
+| 1500x           | 26                                | 1 in 384,615   | 0.0485%     | 21                           | 1 in 476,190   | 0.0330%     |
+| 2000x (current) | 6                                 | 1 in 1,666,667 | 0.0000%     | 4                            | 1 in 2,500,000 | 0.0000%     |
 | 2500x           | 0                                 | never          | 0.0000%     | 0                            | never          | 0.0000%     |
 | 3000x           | 0                                 | never          | 0.0000%     | 0                            | never          | 0.0000%     |
 | 4000x           | 0                                 | never          | 0.0000%     | 0                            | never          | 0.0000%     |
 | 5000x           | 0                                 | never          | 0.0000%     | 0                            | never          | 0.0000%     |
 
-RTP removed = E[(W - cap)+]. It is exact for these rounds only for caps at or below the largest simulated round, and only as long as the configured 2000x cap never bound (rounds reaching it: 3 / 2).
+RTP removed = E[(W - cap)+]. It is exact for these rounds only for caps at or below the largest simulated round, and only as long as the configured 2000x cap never bound (rounds reaching it: 6 / 4).
 
 ### Round win distribution
 
 | Bucket   | Seed 20240601: share | frequency   | RTP    | Seed 777: share | frequency   | RTP    |
 |----------|----------------------|-------------|--------|-----------------|-------------|--------|
-| 0        | 60.792%              | 1 in 1.64   | 0.00%  | 60.768%         | 1 in 1.65   | 0.00%  |
-| <1x      | 17.670%              | 1 in 5.66   | 9.66%  | 17.686%         | 1 in 5.65   | 9.67%  |
-| 1-2x     | 12.756%              | 1 in 7.84   | 16.04% | 12.759%         | 1 in 7.84   | 16.04% |
-| 2-5x     | 6.412%               | 1 in 15.6   | 18.21% | 6.415%          | 1 in 15.6   | 18.21% |
-| 5-20x    | 1.817%               | 1 in 55.0   | 16.74% | 1.823%          | 1 in 54.9   | 16.80% |
-| 20-100x  | 0.476%               | 1 in 210    | 19.01% | 0.474%          | 1 in 211    | 18.97% |
-| 100-500x | 0.072%               | 1 in 1,391  | 11.88% | 0.070%          | 1 in 1,423  | 11.54% |
-| >=500x   | 0.006%               | 1 in 17,065 | 4.16%  | 0.005%          | 1 in 19,048 | 3.68%  |
+| 0        | 60.794%              | 1 in 1.64   | 0.00%  | 60.762%         | 1 in 1.65   | 0.00%  |
+| <1x      | 18.449%              | 1 in 5.42   | 10.41% | 18.469%         | 1 in 5.41   | 10.42% |
+| 1-2x     | 12.554%              | 1 in 7.97   | 16.20% | 12.562%         | 1 in 7.96   | 16.21% |
+| 2-5x     | 5.851%               | 1 in 17.1   | 17.08% | 5.865%          | 1 in 17.1   | 17.12% |
+| 5-20x    | 1.794%               | 1 in 55.7   | 16.82% | 1.784%          | 1 in 56.0   | 16.76% |
+| 20-100x  | 0.480%               | 1 in 208    | 19.37% | 0.481%          | 1 in 208    | 19.41% |
+| 100-500x | 0.073%               | 1 in 1,379  | 12.01% | 0.071%          | 1 in 1,400  | 11.88% |
+| >=500x   | 0.005%               | 1 in 18,727 | 3.88%  | 0.006%          | 1 in 17,889 | 3.96%  |
 
 ### Free spins feature win (x bet, per feature)
 
 |                 | Seed 20240601 | Seed 777 |
 |-----------------|---------------|----------|
-| Features        | 71,061        | 70,610   |
-| Mean            | 44.24         | 43.40    |
-| Median          | 23.80         | 23.60    |
-| 90th percentile | 85.40         | 84.40    |
-| 99th percentile | 382.10        | 356.50   |
+| Features        | 71,373        | 71,212   |
+| Mean            | 44.44         | 44.50    |
+| Median          | 24.20         | 24.20    |
+| 90th percentile | 85.90         | 85.80    |
+| 99th percentile | 359.40        | 369.50   |
 | Max             | 1998.00       | 1998.00  |
-| SD              | 81.72         | 77.56    |
+| SD              | 80.96         | 80.22    |
 
 Median < mean: most features pay modestly and a few large ones carry the average (right-skewed).
 
@@ -108,18 +108,18 @@ Median < mean: most features pay modestly and a few large ones carry the average
 
 | Source                                                        | Exact (uncapped) | Seed 20240601 | Seed 777 | > 0 |
 |---------------------------------------------------------------|------------------|---------------|----------|-----|
-| SHARK                                                         | 19.109%          | 19.431%       | 18.716%  | yes |
-| OCTOPUS                                                       | 12.251%          | 12.194%       | 12.158%  | yes |
-| TURTLE                                                        | 13.065%          | 13.014%       | 12.985%  | yes |
-| SEAHORSE                                                      | 9.030%           | 9.030%        | 9.010%   | yes |
-| PUFFER                                                        | 5.076%           | 5.068%        | 5.039%   | yes |
-| A                                                             | 10.973%          | 11.005%       | 10.978%  | yes |
-| K                                                             | 7.434%           | 7.411%        | 7.427%   | yes |
-| Q                                                             | 8.063%           | 8.068%        | 8.043%   | yes |
-| J                                                             | 8.033%           | 8.014%        | 8.032%   | yes |
-| SCATTER (pays)                                                | 2.520%           | 2.468%        | 2.510%   | yes |
-| WILD (line wins that used a wild; overlaps the symbols above) | 69.998%          | 70.175%       | 69.466%  | yes |
-| max win cap (negative)                                        | 0.000%           | -0.006%       | -0.003%  | yes |
+| SHARK                                                         | 19.996%          | 20.015%       | 19.996%  | yes |
+| OCTOPUS                                                       | 12.989%          | 13.055%       | 13.107%  | yes |
+| TURTLE                                                        | 11.533%          | 11.524%       | 11.519%  | yes |
+| SEAHORSE                                                      | 9.030%           | 9.083%        | 9.030%   | yes |
+| PUFFER                                                        | 5.076%           | 5.087%        | 5.074%   | yes |
+| A                                                             | 10.973%          | 10.994%       | 10.984%  | yes |
+| K                                                             | 7.862%           | 7.841%        | 7.874%   | yes |
+| Q                                                             | 8.164%           | 8.172%        | 8.152%   | yes |
+| J                                                             | 7.525%           | 7.507%        | 7.534%   | yes |
+| SCATTER (pays)                                                | 2.520%           | 2.498%        | 2.520%   | yes |
+| WILD (line wins that used a wild; overlaps the symbols above) | 70.245%          | 70.400%       | 70.410%  | yes |
+| max win cap (negative)                                        | 0.000%           | -0.016%       | -0.020%  | yes |
 
 Free-spin wins are included, weighted by trigger probability × expected spins × 2. The exact FS part per symbol uses Wald's identity.
 
