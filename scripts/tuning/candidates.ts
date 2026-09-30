@@ -88,6 +88,31 @@ const BASE_OUTER_V7: Counts = { ...BASE_OUTER_V1, PUFFER: 2, A: 5 };
 // v8: 3 scatters pay 2x instead of 3x (P(3 scatters) ~ 0.65% -> about -0.65 pts).
 const SCATTER_PAYS_V8: PayByCount = { 3: 2, 4: 15, 5: 100 };
 
+// ---- v9+: premium stacks for volatility ----
+
+/** Moves SHARK/OCTOPUS out of the single counts; they are supplied as stacks instead. */
+const withoutPremiums = (c: Counts): Counts => ({ ...c, SHARK: 0, OCTOPUS: 0 });
+const V8_BASE: Counts[] = [BASE_OUTER_V7, BASE_INNER_V1, BASE_INNER_V1, BASE_INNER_V1, BASE_OUTER_V7];
+const V8_FS: Counts[] = [FS_OUTER_V5, FS_INNER_V4, FS_CENTER_V6, FS_INNER_V4, FS_OUTER_V5];
+const five = (s: Stacks): Stacks[] => [s, s, s, s, s];
+
+// v10: base untouched (protects the hit rate); FS premiums become stacks of 3 (+1 each),
+// paid for with -1 A, -1 K per reel and one wild fewer on reels 2-4.
+const FS_OUTER_V10: Counts = { ...withoutPremiums(FS_OUTER_V5), A: 3, K: 3 };
+const FS_INNER_V10: Counts = { ...withoutPremiums(FS_INNER_V4), WILD: 4, A: 3, K: 3, Q: 3 };
+const FS_CENTER_V10: Counts = { ...withoutPremiums(FS_CENTER_V6), WILD: 5, A: 3, K: 3, J: 3 };
+const FS_V10: Counts[] = [FS_OUTER_V10, FS_INNER_V10, FS_CENTER_V10, FS_INNER_V10, FS_OUTER_V10];
+
+// v11: top-heavy premium pays. Variance grows with pay^2 but the mean only with pay, so
+// moving value from 3-of-a-kind to 4/5-of-a-kind raises SD cheaply.
+const PAYS_V11: Candidate['linePays'] = {
+  ...PAYS_V4,
+  SHARK: { 3: 30, 4: 300, 5: 2500 },
+  OCTOPUS: { 3: 25, 4: 200, 5: 1200 },
+};
+const FS_CENTER_V11: Counts = { ...FS_CENTER_V10, WILD: 4, K: 4 };
+const FS_V11: Counts[] = [FS_OUTER_V10, FS_INNER_V10, FS_CENTER_V11, FS_INNER_V10, FS_OUTER_V10];
+
 const reels = (outer: Counts, inner: Counts): Counts[] => [outer, inner, inner, inner, outer];
 
 export const CANDIDATES: readonly Candidate[] = [
@@ -161,6 +186,50 @@ export const CANDIDATES: readonly Candidate[] = [
     scatterPays: SCATTER_PAYS_V8,
     baseReels: reels(BASE_OUTER_V7, BASE_INNER_V1),
     freeSpinReels: [FS_OUTER_V5, FS_INNER_V4, FS_CENTER_V6, FS_INNER_V4, FS_OUTER_V5],
+    layoutSeed: 1,
+  },
+  {
+    id: 'v9',
+    note: 'v8 has SD ~5.0 (target 7-9). Pure layout experiment: the same 2 SHARK + 2 OCTOPUS per reel, now as stacks of 2. Counts are unchanged, so RTP must not move.',
+    linePays: PAYS_V4,
+    scatterPays: SCATTER_PAYS_V8,
+    baseReels: V8_BASE.map(withoutPremiums),
+    freeSpinReels: V8_FS.map(withoutPremiums),
+    baseStacks: five({ SHARK: [2], OCTOPUS: [2] }),
+    freeSpinStacks: five({ SHARK: [2], OCTOPUS: [2] }),
+    layoutSeed: 1,
+  },
+  {
+    id: 'v10',
+    note: 'v9: RTP unchanged as predicted, but SD only 5.27 and hits fell to 36.6%. Keep base as v8; concentrate volatility in FS with stacks of 3 SHARK/OCTOPUS, one wild fewer on reels 2-4.',
+    linePays: PAYS_V4,
+    scatterPays: SCATTER_PAYS_V8,
+    baseReels: V8_BASE,
+    freeSpinReels: FS_V10,
+    baseStacks: five({}),
+    freeSpinStacks: five({ SHARK: [3], OCTOPUS: [3] }),
+    layoutSeed: 1,
+  },
+  {
+    id: 'v11',
+    note: 'v10: SD 5.75, max 1133x, RTP 93.4%. FS spin SD is 7.0 and needs ~11. Top-heavy SHARK/OCTOPUS pays (predicted FS +18%, base +0.7) and one wild fewer on the centre FS reel (predicted FS -11%).',
+    linePays: PAYS_V11,
+    scatterPays: SCATTER_PAYS_V8,
+    baseReels: V8_BASE,
+    freeSpinReels: FS_V11,
+    baseStacks: five({}),
+    freeSpinStacks: five({ SHARK: [3], OCTOPUS: [3] }),
+    layoutSeed: 1,
+  },
+  {
+    id: 'v12',
+    note: 'v11 meets every target, but RTP 95.35% sits 0.05 above the floor and the cap will lower it. 4 scatters pay 20x instead of 15x (P = 1 in 2,857: about +0.18 base, +0.04 FS).',
+    linePays: PAYS_V11,
+    scatterPays: { 3: 2, 4: 20, 5: 100 },
+    baseReels: V8_BASE,
+    freeSpinReels: FS_V11,
+    baseStacks: five({}),
+    freeSpinStacks: five({ SHARK: [3], OCTOPUS: [3] }),
     layoutSeed: 1,
   },
 ];
