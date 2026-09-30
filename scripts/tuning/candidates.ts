@@ -113,6 +113,19 @@ const PAYS_V11: Candidate['linePays'] = {
 const FS_CENTER_V11: Counts = { ...FS_CENTER_V10, WILD: 4, K: 4 };
 const FS_V11: Counts[] = [FS_OUTER_V10, FS_INNER_V10, FS_CENTER_V11, FS_INNER_V10, FS_OUTER_V10];
 
+// v13: strict rank order for every count (SHARK > OCTOPUS > TURTLE > ... > J).
+const PAYS_V13: Candidate['linePays'] = {
+  SHARK: { 3: 36, 4: 300, 5: 2500 },
+  OCTOPUS: { 3: 30, 4: 200, 5: 1200 },
+  TURTLE: { 3: 24, 4: 80, 5: 300 },
+  SEAHORSE: { 3: 20, 4: 60, 5: 200 },
+  PUFFER: { 3: 16, 4: 40, 5: 150 },
+  A: { 3: 12, 4: 30, 5: 100 },
+  K: { 3: 11, 4: 24, 5: 80 },
+  Q: { 3: 10, 4: 21, 5: 60 },
+  J: { 3: 9, 4: 20, 5: 50 },
+};
+
 const reels = (outer: Counts, inner: Counts): Counts[] => [outer, inner, inner, inner, outer];
 
 export const CANDIDATES: readonly Candidate[] = [
@@ -228,7 +241,19 @@ export const CANDIDATES: readonly Candidate[] = [
     scatterPays: { 3: 2, 4: 20, 5: 100 },
     baseReels: V8_BASE,
     freeSpinReels: FS_V11,
+    // Declaring (empty) base stacks enabled the stack rule for base, so reel 4 was laid
+    // out differently from v8. Kept as-is so v10-v12 stay reproducible; fixed in v13.
     baseStacks: five({}),
+    freeSpinStacks: five({ SHARK: [3], OCTOPUS: [3] }),
+    layoutSeed: 1,
+  },
+  {
+    id: 'v13',
+    note: 'Strict rank order per count: SHARK/OCTOPUS/TURTLE 3oak 36/30/24, K/Q/J 3oak 11/10/9, Q 4oak 21. Predicted about +0.1 RTP. Base reels back to v8 exactly (no base stacks declared).',
+    linePays: PAYS_V13,
+    scatterPays: { 3: 2, 4: 20, 5: 100 },
+    baseReels: V8_BASE,
+    freeSpinReels: FS_V11,
     freeSpinStacks: five({ SHARK: [3], OCTOPUS: [3] }),
     layoutSeed: 1,
   },
