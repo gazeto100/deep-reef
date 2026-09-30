@@ -34,5 +34,5 @@ export const TEST_GAME: GameDefinition<TestSymbol> = {
   freeSpins: { triggerCount: 3, awarded: 3, retriggerAwarded: 2, maxTotal: 5, winMultiplier: 2 },
   maxWinMultiplier: 1000,
   betLevels: [3, 30],
-  constraints: { wildReels: [0, 1, 2, 3, 4], stackable: ['W', 'X'], maxStack: 3, targetRtp: [0, 1] },
+  constraints: { wildReels: [0, 1, 2, 3, 4], stackable: ['W', 'X'], maxStack: 3, payRank: ['A', 'B'], targetRtp: [0, 1] },
 };

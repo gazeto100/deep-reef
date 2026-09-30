@@ -78,6 +78,26 @@ export function verifyGame<S extends string>(
   }
   check('line pays increase with count', notMonotonic.length === 0, notMonotonic.length ? notMonotonic.join(', ') : 'ok');
 
+  const rank = def.constraints.payRank;
+  const rankProblems: string[] = [];
+  const unranked = def.symbols.filter((s) => def.linePays[s] !== undefined && s !== def.wild && !rank.includes(s));
+  if (unranked.length) rankProblems.push(`not ranked: ${unranked.join(', ')}`);
+  for (let count = 1; count <= def.reelCount; count++) {
+    for (let i = 1; i < rank.length; i++) {
+      const higher = rank[i - 1];
+      const lower = rank[i];
+      if (higher === undefined || lower === undefined) continue;
+      const hp = def.linePays[higher]?.[count] ?? 0;
+      const lp = def.linePays[lower]?.[count] ?? 0;
+      if ((hp > 0 || lp > 0) && hp <= lp) rankProblems.push(`${higher}x${count}=${hp} <= ${lower}x${count}=${lp}`);
+    }
+  }
+  check(
+    'higher-ranked symbols pay strictly more for every count',
+    rankProblems.length === 0,
+    rankProblems.length ? rankProblems.join('; ') : rank.join(' > '),
+  );
+
   const unreachable = a.base.lineStats.filter((s) => s.probabilityPerLine === 0).map((s) => `${s.symbol}x${s.count}`);
   check('every line pay is reachable in the base game', unreachable.length === 0, unreachable.length ? unreachable.join(', ') : `${a.base.lineStats.length} line pays`);
 

@@ -74,6 +74,7 @@ export const DEEP_REEF_RULES: DeepReefRules = {
     // Premium stacks raise volatility without changing RTP (see docs/math-tuning.md).
     stackable: ['SHARK', 'OCTOPUS'],
     maxStack: 3,
+    payRank: ['SHARK', 'OCTOPUS', 'TURTLE', 'SEAHORSE', 'PUFFER', 'A', 'K', 'Q', 'J'],
     targetRtp: [0.953, 0.958],
   },
 };

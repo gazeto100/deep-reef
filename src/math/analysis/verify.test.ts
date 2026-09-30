@@ -32,6 +32,13 @@ describe('verifyGame', () => {
     expect(failedChecks(def)).toContain('line pays increase with count');
   });
 
+  it('flags a lower-ranked symbol that pays as much as a higher-ranked one', () => {
+    // Rank A > B; B x3 raised to A x3.
+    const def = { ...TEST_GAME, linePays: { ...TEST_GAME.linePays, B: { 3: 5, 4: 6, 5: 10 } } };
+    expect(failedChecks(def)).toContain('higher-ranked symbols pay strictly more for every count');
+    expect(failedChecks(TEST_GAME)).not.toContain('higher-ranked symbols pay strictly more for every count');
+  });
+
   it('flags a trigger count that does not pay', () => {
     const def = { ...TEST_GAME, scatterPays: { 4: 10, 5: 50 } };
     expect(failedChecks(def)).toContain('every reachable trigger also pays (round hit rate = base hit rate)');

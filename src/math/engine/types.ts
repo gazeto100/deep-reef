@@ -50,6 +50,8 @@ export interface GameConstraints<S extends string = string> {
   readonly stackable: readonly S[];
   /** Longest allowed run of one stackable symbol. Other symbols never repeat. */
   readonly maxStack: number;
+  /** Paying symbols from highest to lowest rank: for every count, a higher rank pays strictly more. */
+  readonly payRank: readonly S[];
   /** Target RTP window, e.g. [0.95, 0.96]. */
   readonly targetRtp: readonly [number, number];
 }
