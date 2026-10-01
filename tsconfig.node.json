@@ -6,5 +6,5 @@
     "types": ["node"],
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo"
   },
-  "include": ["scripts", "src/math/**/*.test.ts", "vitest.config.ts"]
+  "include": ["scripts", "src/math/**/*.test.ts", "vite.config.ts"]
 }
