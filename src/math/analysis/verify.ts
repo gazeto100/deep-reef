@@ -29,14 +29,26 @@ export function verifyGame<S extends string>(
   // Structure
   const lineKeys = def.paylines.map((l) => l.join(','));
   const duplicates = lineKeys.filter((k, i) => lineKeys.indexOf(k) !== i);
-  check('paylines are unique', duplicates.length === 0, duplicates.length ? `duplicates: ${duplicates.join(' | ')}` : `${lineKeys.length} lines`);
+  check(
+    'paylines are unique',
+    duplicates.length === 0,
+    duplicates.length ? `duplicates: ${duplicates.join(' | ')}` : `${lineKeys.length} lines`,
+  );
 
   for (const [name, reels] of reelSets(game)) {
     const bad = wildOutsideAllowedReels(game, reels, def.constraints.wildReels);
-    check(`${name}: wild only on reels ${def.constraints.wildReels.map((r) => r + 1).join(',')}`, bad.length === 0, bad.length ? `found on reels ${bad.map((r) => r + 1).join(',')}` : 'ok');
+    check(
+      `${name}: wild only on reels ${def.constraints.wildReels.map((r) => r + 1).join(',')}`,
+      bad.length === 0,
+      bad.length ? `found on reels ${bad.map((r) => r + 1).join(',')}` : 'ok',
+    );
 
     const stacked = scatterStacks(game, reels);
-    check(`${name}: at most one scatter per reel window`, stacked.length === 0, stacked.length ? stacked.join('; ') : 'ok');
+    check(
+      `${name}: at most one scatter per reel window`,
+      stacked.length === 0,
+      stacked.length ? stacked.join('; ') : 'ok',
+    );
 
     const layout = (name === 'base reels' ? def.baseReels : def.freeSpinReels).flatMap((strip, r) =>
       findLayoutViolations(strip, {
@@ -49,10 +61,18 @@ export function verifyGame<S extends string>(
     const stackRule = def.constraints.stackable.length
       ? `stacks only for ${def.constraints.stackable.join('/')}, max ${def.constraints.maxStack}`
       : 'no stacks';
-    check(`${name}: layout rules (${stackRule})`, layout.length === 0, layout.length ? layout.slice(0, 5).join('; ') : 'ok');
+    check(
+      `${name}: layout rules (${stackRule})`,
+      layout.length === 0,
+      layout.length ? layout.slice(0, 5).join('; ') : 'ok',
+    );
 
     const missing = def.symbols.filter((_, i) => !reels.some((strip) => strip.includes(i)));
-    check(`${name}: every symbol appears on the reels`, missing.length === 0, missing.length ? `missing: ${missing.join(', ')}` : 'ok');
+    check(
+      `${name}: every symbol appears on the reels`,
+      missing.length === 0,
+      missing.length ? `missing: ${missing.join(', ')}` : 'ok',
+    );
   }
 
   // Calculator cross-check: an independent, layout-free method must agree.
@@ -73,10 +93,16 @@ export function verifyGame<S extends string>(
   for (const symbol of def.symbols) {
     const pays = def.linePays[symbol];
     if (!pays) continue;
-    const values = Object.entries(pays).sort(([x], [y]) => Number(x) - Number(y)).map(([, v]) => v ?? 0);
+    const values = Object.entries(pays)
+      .sort(([x], [y]) => Number(x) - Number(y))
+      .map(([, v]) => v ?? 0);
     if (values.some((v, i) => i > 0 && v <= (values[i - 1] ?? 0))) notMonotonic.push(symbol);
   }
-  check('line pays increase with count', notMonotonic.length === 0, notMonotonic.length ? notMonotonic.join(', ') : 'ok');
+  check(
+    'line pays increase with count',
+    notMonotonic.length === 0,
+    notMonotonic.length ? notMonotonic.join(', ') : 'ok',
+  );
 
   const rank = def.constraints.payRank;
   const rankProblems: string[] = [];
@@ -99,21 +125,43 @@ export function verifyGame<S extends string>(
   );
 
   const unreachable = a.base.lineStats.filter((s) => s.probabilityPerLine === 0).map((s) => `${s.symbol}x${s.count}`);
-  check('every line pay is reachable in the base game', unreachable.length === 0, unreachable.length ? unreachable.join(', ') : `${a.base.lineStats.length} line pays`);
+  check(
+    'every line pay is reachable in the base game',
+    unreachable.length === 0,
+    unreachable.length ? unreachable.join(', ') : `${a.base.lineStats.length} line pays`,
+  );
 
-  const unreachableFs = a.freeSpins.lineStats.filter((s) => s.probabilityPerLine === 0).map((s) => `${s.symbol}x${s.count}`);
-  check('every line pay is reachable in free spins', unreachableFs.length === 0, unreachableFs.length ? unreachableFs.join(', ') : 'ok');
+  const unreachableFs = a.freeSpins.lineStats
+    .filter((s) => s.probabilityPerLine === 0)
+    .map((s) => `${s.symbol}x${s.count}`);
+  check(
+    'every line pay is reachable in free spins',
+    unreachableFs.length === 0,
+    unreachableFs.length ? unreachableFs.join(', ') : 'ok',
+  );
 
   const scatterUnreachable = a.base.scatterStats.filter((s) => s.probability === 0).map((s) => `${s.count} scatters`);
-  check('every scatter pay is reachable', scatterUnreachable.length === 0, scatterUnreachable.length ? scatterUnreachable.join(', ') : a.base.scatterStats.map((s) => s.count).join('/'));
+  check(
+    'every scatter pay is reachable',
+    scatterUnreachable.length === 0,
+    scatterUnreachable.length ? scatterUnreachable.join(', ') : a.base.scatterStats.map((s) => s.count).join('/'),
+  );
 
   // Contribution
   const rtpBySymbol = new Map<string, number>();
   for (const s of a.base.lineStats) rtpBySymbol.set(s.symbol, (rtpBySymbol.get(s.symbol) ?? 0) + s.rtp);
   const deadSymbols = [...rtpBySymbol].filter(([, rtp]) => rtp <= 0).map(([s]) => s);
-  check('every paying symbol contributes to base RTP', deadSymbols.length === 0, deadSymbols.length ? deadSymbols.join(', ') : `${rtpBySymbol.size} symbols`);
+  check(
+    'every paying symbol contributes to base RTP',
+    deadSymbols.length === 0,
+    deadSymbols.length ? deadSymbols.join(', ') : `${rtpBySymbol.size} symbols`,
+  );
   check('wild contributes (wins using a substitution)', a.base.rtpLinesWithWild > 0, pct(a.base.rtpLinesWithWild));
-  check('scatter contributes (pays and triggers)', a.base.rtpScatter > 0 && a.triggerProbability > 0, `${pct(a.base.rtpScatter)}, trigger 1 in ${(1 / a.triggerProbability).toFixed(1)}`);
+  check(
+    'scatter contributes (pays and triggers)',
+    a.base.rtpScatter > 0 && a.triggerProbability > 0,
+    `${pct(a.base.rtpScatter)}, trigger 1 in ${(1 / a.triggerProbability).toFixed(1)}`,
+  );
 
   const trigger = def.freeSpins.triggerCount;
   const maxScatters = def.reelCount * def.rowCount;
@@ -121,7 +169,11 @@ export function verifyGame<S extends string>(
   for (let n = trigger; n <= maxScatters; n++) {
     if ((a.base.scatterCountProbability[n] ?? 0) > 0 && (game.scatterPay[n] ?? 0) === 0) silentTriggers.push(n);
   }
-  check('every reachable trigger also pays (round hit rate = base hit rate)', silentTriggers.length === 0, silentTriggers.length ? `no pay for ${silentTriggers.join(', ')} scatters` : 'ok');
+  check(
+    'every reachable trigger also pays (round hit rate = base hit rate)',
+    silentTriggers.length === 0,
+    silentTriggers.length ? `no pay for ${silentTriggers.join(', ')} scatters` : 'ok',
+  );
 
   // Cap and RTP
   check(
@@ -155,7 +207,11 @@ function reelSets(game: CompiledGame): [string, readonly Uint8Array[]][] {
   ];
 }
 
-function wildOutsideAllowedReels(game: CompiledGame, reels: readonly Uint8Array[], allowed: readonly number[]): number[] {
+function wildOutsideAllowedReels(
+  game: CompiledGame,
+  reels: readonly Uint8Array[],
+  allowed: readonly number[],
+): number[] {
   return reels.flatMap((strip, r) => (!allowed.includes(r) && strip.includes(game.wild) ? [r] : []));
 }
 

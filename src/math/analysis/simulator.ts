@@ -161,7 +161,8 @@ export function simulate<S extends string>(def: GameDefinition<S>, options: Simu
   const creditSpin = (spin: SpinResult<S>, phase: 'base' | 'freeSpins'): void => {
     for (const lw of spin.lineWins) {
       credit(lw.symbol, 'line', phase, lw.win / bet);
-      if (lw.positions.some(([r, row]) => spin.grid[r]?.[row] === def.wild)) credit(def.wild, 'wild-assisted', phase, lw.win / bet);
+      if (lw.positions.some(([r, row]) => spin.grid[r]?.[row] === def.wild))
+        credit(def.wild, 'wild-assisted', phase, lw.win / bet);
     }
     if (spin.scatter) credit(def.scatter, 'scatter', phase, spin.scatter.win / bet);
     if (spin.capped) credit('max win cap', 'cap', phase, -(spin.rawWin - spin.win) / bet);
@@ -236,14 +237,24 @@ export function simulate<S extends string>(def: GameDefinition<S>, options: Simu
     hitRate: hits / rounds,
     triggerRate: triggers / rounds,
     features: triggers,
-    featureWin: { ...featureWin.result(), median: quantile(0.5), p90: quantile(0.9), p99: quantile(0.99), max: sorted[sorted.length - 1] ?? 0 },
+    featureWin: {
+      ...featureWin.result(),
+      median: quantile(0.5),
+      p90: quantile(0.9),
+      p99: quantile(0.99),
+      max: sorted[sorted.length - 1] ?? 0,
+    },
     featureSpins: featureSpins.result(),
     freeSpinWin: freeSpinWin.result(),
     retriggerRate: freeSpinsPlayed > 0 ? retriggerSpins / freeSpinsPlayed : 0,
     maxRound,
     capHits,
     capLost: capLost / rounds,
-    buckets: WIN_BUCKET_LABELS.map((label, k) => ({ label, count: bucketCounts[k] ?? 0, rtp: (bucketWins[k] ?? 0) / rounds })),
+    buckets: WIN_BUCKET_LABELS.map((label, k) => ({
+      label,
+      count: bucketCounts[k] ?? 0,
+      rtp: (bucketWins[k] ?? 0) / rounds,
+    })),
     contributions: [...contribution].map(([key, c]) => ({
       source: key.slice(c.kind.length + 1),
       kind: c.kind,
