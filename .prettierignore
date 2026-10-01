@@ -1,0 +1,8 @@
+dist
+coverage
+sim-output
+package-lock.json
+# Generated files: their layout comes from their generators.
+src/math/config/deepReef.ts
+docs/math-report.md
+docs/math-simulation.md
