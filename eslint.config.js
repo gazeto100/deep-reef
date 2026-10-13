@@ -47,9 +47,14 @@ const PURE = [
   { regex: NODE_BUILTINS, message: 'This package must stay pure: no Node built-ins (it also runs in the browser).' },
 ];
 
-/** @param {string[]} files @param {object[]} patterns */
+/**
+ * Boundaries apply to production code. Tests run in Node under Vitest, so they may use
+ * node:* and test-only helpers (their dependencies are still checked by import-x).
+ * @param {string[]} files @param {object[]} patterns
+ */
 const boundary = (files, patterns) => ({
   files,
+  ignores: ['**/*.test.{ts,tsx}'],
   rules: { 'no-restricted-imports': ['error', { patterns }] },
 });
 

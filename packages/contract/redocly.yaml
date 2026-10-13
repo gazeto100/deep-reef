@@ -1,0 +1,8 @@
+extends:
+  - recommended
+
+rules:
+  # The project has no license yet; add one before publishing the API.
+  info-license: off
+  # /health is unauthenticated on purpose, and so is the demo API (anonymous sessions).
+  security-defined: off

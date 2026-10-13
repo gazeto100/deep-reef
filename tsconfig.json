@@ -1,5 +1,10 @@
 {
   // Solution file: `tsc -b` type-checks every workspace and the root tooling.
   "files": [],
-  "references": [{ "path": "./packages/math" }, { "path": "./apps/web" }, { "path": "./tsconfig.node.json" }]
+  "references": [
+    { "path": "./packages/math" },
+    { "path": "./packages/contract" },
+    { "path": "./apps/web" },
+    { "path": "./tsconfig.node.json" }
+  ]
 }

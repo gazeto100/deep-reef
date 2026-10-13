@@ -4,5 +4,6 @@ sim-output
 package-lock.json
 # Generated files: their layout comes from their generators.
 packages/math/src/config/deepReef.ts
+packages/contract/openapi.yaml
 docs/math-report.md
 docs/math-simulation.md

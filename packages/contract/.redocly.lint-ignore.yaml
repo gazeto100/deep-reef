@@ -1,0 +1,6 @@
+# Deliberate exceptions to Redocly's recommended rules.
+# See https://redocly.com/docs/cli/ for more information.
+openapi.yaml:
+  # A liveness probe has no client errors: it either answers 200 or the server is down.
+  operation-4xx-response:
+    - '#/paths/~1health/get/responses'
