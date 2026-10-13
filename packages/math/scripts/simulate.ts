@@ -1,9 +1,10 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { analyzeRound, type RoundAnalysis } from '../src/math/analysis/exact';
-import { simulate, type SimulationResult } from '../src/math/analysis/simulator';
-import { DEEP_REEF } from '../src/math/config/deepReef';
-import { compileGame } from '../src/math/engine/compile';
+import { analyzeRound, type RoundAnalysis } from '../src/analysis/exact';
+import { simulate, type SimulationResult } from '../src/analysis/simulator';
+import { DEEP_REEF } from '../src/config/deepReef';
+import { compileGame } from '../src/engine/compile';
 import { markdownTable, oneIn, pct } from './lib/markdown';
+import { DOCS_DIR, SIM_OUTPUT_DIR } from './lib/paths';
 
 /**
  * Usage: npm run math:sim -- [--rounds 10000000] [--seeds 20240601,777] [--bet 20] [--doc]
@@ -37,8 +38,8 @@ const results: SimulationResult[] = seeds.map((seed) => {
     totalBet: bet,
     onProgress: (done) => log(`  ${(done / 1e6).toFixed(0)}M`),
   });
-  mkdirSync('sim-output', { recursive: true });
-  writeFileSync(`sim-output/sim-seed-${seed}.json`, JSON.stringify(result, null, 2));
+  mkdirSync(SIM_OUTPUT_DIR, { recursive: true });
+  writeFileSync(`${SIM_OUTPUT_DIR}sim-seed-${seed}.json`, JSON.stringify(result, null, 2));
   log(`  done in ${result.seconds.toFixed(0)} s`);
   return result;
 });
@@ -306,6 +307,6 @@ complete rounds through \`SlotEngine.playRound\`, the same code the server uses,
 compares them with the exact calculator ([math-report.md](math-report.md)).
 
 `;
-  writeFileSync('docs/math-simulation.md', `${header}${report}\n`);
+  writeFileSync(`${DOCS_DIR}math-simulation.md`, `${header}${report}\n`);
   log('wrote docs/math-simulation.md');
 }

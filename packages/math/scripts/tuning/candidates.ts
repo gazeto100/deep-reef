@@ -1,5 +1,5 @@
-import type { PayByCount } from '../../src/math/engine/types';
-import type { DeepReefSymbol } from '../../src/math/config/deepReefRules';
+import type { PayByCount } from '../../src/engine/types';
+import type { DeepReefSymbol } from '../../src/config/deepReefRules';
 import type { StackSpec, SymbolCounts } from './layoutStrip';
 
 /**

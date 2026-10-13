@@ -1,0 +1,12 @@
+{
+  // Purity boundary for the math engine: no DOM lib and no ambient types (not even Node).
+  // Any use of window, document, process, etc. fails to compile.
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": [],
+    "tsBuildInfoFile": "../../node_modules/.tmp/math.src.tsbuildinfo"
+  },
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts"]
+}

@@ -15,14 +15,6 @@
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "noEmit": true,
-    // Layer aliases. They are mirrored in vite.config.ts and enforced in eslint.config.js.
-    "paths": {
-      "@math/*": ["./src/math/*"],
-      "@framework/*": ["./src/framework/*"],
-      "@games/*": ["./src/games/*"],
-      "@server/*": ["./src/server/*"],
-      "@ui/*": ["./src/ui/*"]
-    }
+    "noEmit": true
   }
 }

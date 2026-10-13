@@ -1,0 +1,16 @@
+{
+  "name": "@deep-reef/math",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Deep Reef slot math: seedable RNG, round engine, exact calculator, simulator and verification. Pure TypeScript, no dependencies.",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "tune": "tsx scripts/tuning/tune.ts",
+    "exact": "tsx scripts/exact.ts",
+    "sim": "tsx scripts/simulate.ts",
+    "verify": "tsx scripts/verify.ts"
+  }
+}

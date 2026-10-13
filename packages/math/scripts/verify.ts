@@ -1,5 +1,5 @@
-import { verifyGame } from '../src/math/analysis/verify';
-import { DEEP_REEF } from '../src/math/config/deepReef';
+import { verifyGame } from '../src/analysis/verify';
+import { DEEP_REEF } from '../src/config/deepReef';
 
 const started = performance.now();
 const { checks } = verifyGame(DEEP_REEF);

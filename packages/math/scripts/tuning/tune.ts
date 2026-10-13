@@ -1,13 +1,14 @@
 import { writeFileSync } from 'node:fs';
-import { analyzeRound } from '../../src/math/analysis/exact';
-import { reelFingerprint } from '../../src/math/analysis/fingerprint';
-import { simulate } from '../../src/math/analysis/simulator';
-import { DEEP_REEF } from '../../src/math/config/deepReef';
-import { compileGame } from '../../src/math/engine/compile';
-import type { GameDefinition, PayByCount } from '../../src/math/engine/types';
-import { DEEP_REEF_RULES, type DeepReefSymbol } from '../../src/math/config/deepReefRules';
+import { analyzeRound } from '../../src/analysis/exact';
+import { reelFingerprint } from '../../src/analysis/fingerprint';
+import { simulate } from '../../src/analysis/simulator';
+import { DEEP_REEF } from '../../src/config/deepReef';
+import { compileGame } from '../../src/engine/compile';
+import type { GameDefinition, PayByCount } from '../../src/engine/types';
+import { DEEP_REEF_RULES, type DeepReefSymbol } from '../../src/config/deepReefRules';
 import { CANDIDATES, type Candidate } from './candidates';
 import { layoutStrip } from './layoutStrip';
+import { DEEP_REEF_CONFIG } from '../lib/paths';
 
 /**
  * Usage:
@@ -15,7 +16,7 @@ import { layoutStrip } from './layoutStrip';
  *   npm run math:tune -- v3         -> summary for one candidate
  *   npm run math:tune -- v3 --detail -> RTP by symbol for base and free-spin reels
  *   npm run math:tune -- v3 --emit  -> also print the reel strips as JSON
- *   npm run math:tune -- v3 --write -> freeze the candidate into src/math/config/deepReef.ts
+ *   npm run math:tune -- v3 --write -> freeze the candidate into packages/math/src/config/deepReef.ts
  *                                      (refuses to change the base reels unless --allow-base-change)
  *   --rounds N                      -> rounds of the quick SD/tail simulation (default 2M, seed 1)
  */
@@ -54,7 +55,7 @@ export function buildDefinition(candidate: Candidate): GameDefinition<DeepReefSy
 
 const pct = (x: number, digits = 2): string => `${(x * 100).toFixed(digits)}%`;
 
-const CONFIG_PATH = 'src/math/config/deepReef.ts';
+const CONFIG_PATH = DEEP_REEF_CONFIG;
 
 /**
  * Freezes a candidate into the game config as literal data. The strips are written

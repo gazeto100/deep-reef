@@ -1,5 +1,5 @@
-import { findLayoutViolations, type LayoutRules } from '../../src/math/analysis/layoutRules';
-import { Xoshiro128 } from '../../src/math/rng/Xoshiro128';
+import { findLayoutViolations, type LayoutRules } from '../../src/analysis/layoutRules';
+import { Xoshiro128 } from '../../src/rng/Xoshiro128';
 
 export type SymbolCounts<S extends string> = Readonly<Partial<Record<S, number>>>;
 
@@ -9,7 +9,7 @@ export type StackSpec<S extends string> = Readonly<Partial<Record<S, readonly nu
 /**
  * Turns symbol counts (plus optional stacks) into a concrete reel strip. It does a
  * seeded shuffle of singles and whole stacks, repeated until the strip passes the
- * shared layout rules (src/math/analysis/layoutRules.ts). The result is reproducible.
+ * shared layout rules (packages/math/src/analysis/layoutRules.ts). The result is reproducible.
  */
 export function layoutStrip<S extends string>(
   counts: SymbolCounts<S>,
