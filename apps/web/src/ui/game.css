@@ -19,6 +19,8 @@ body,
 #root {
   height: 100%;
   margin: 0;
+  /* A full-screen game: nothing scrolls at page level (dialogs scroll inside themselves). */
+  overflow: hidden;
 }
 
 body {
@@ -101,6 +103,11 @@ button:disabled {
 .pixi-stage {
   position: absolute;
   inset: 0;
+}
+
+/* Inline canvases leave a text-descender gap below them (4px of overflow). */
+.pixi-stage canvas {
+  display: block;
 }
 
 .hud {
