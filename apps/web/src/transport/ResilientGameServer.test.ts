@@ -1,6 +1,6 @@
 import { GameServerError, type ErrorCode } from '@deep-reef/contract/errors';
 import type { AbortSignalLike, GameServer, RequestOptions } from '@deep-reef/contract/GameServer';
-import type { CreateSessionResponse, SessionResponse, SpinRequest, SpinResponse } from '@deep-reef/contract/schemas';
+import type { Session, SpinRequest, SpinResponse } from '@deep-reef/contract/schemas';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ResilientGameServer, type RetryEvent } from './ResilientGameServer';
 
@@ -28,11 +28,11 @@ class ScriptedServer implements GameServer {
     return (this.script.shift() ?? ok)(options?.signal);
   }
 
-  createSession(): Promise<CreateSessionResponse> {
+  createSession(): Promise<Session> {
     return Promise.reject(new Error('not used'));
   }
 
-  getSession(): Promise<SessionResponse> {
+  getSession(): Promise<Session> {
     return Promise.reject(new Error('not used'));
   }
 }

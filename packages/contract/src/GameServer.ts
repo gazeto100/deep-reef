@@ -1,4 +1,4 @@
-import type { CreateSessionResponse, SessionResponse, SpinRequest, SpinResponse } from './schemas';
+import type { Session, SpinRequest, SpinResponse } from './schemas';
 
 /**
  * The structural subset of AbortSignal this contract relies on. The contract package
@@ -22,9 +22,9 @@ export interface RequestOptions {
  */
 export interface GameServer {
   /** POST /v1/sessions: a new anonymous demo session with the starting balance. */
-  createSession(options?: RequestOptions): Promise<CreateSessionResponse>;
+  createSession(options?: RequestOptions): Promise<Session>;
   /** GET /v1/sessions/{sessionId} */
-  getSession(sessionId: string, options?: RequestOptions): Promise<SessionResponse>;
+  getSession(sessionId: string, options?: RequestOptions): Promise<Session>;
   /** POST /v1/sessions/{sessionId}/spins: idempotent by request.requestId. */
   spin(sessionId: string, request: SpinRequest, options?: RequestOptions): Promise<SpinResponse>;
 }

@@ -47,3 +47,21 @@ export function readTransportConfig(env: TransportEnv): TransportConfig {
 
   return { kind, apiUrl, mockFaults: faults === 'flaky' ? FLAKY_NETWORK : {}, timeoutMs };
 }
+
+/**
+ * URL switch for the public demo: `?faults=1` turns on the flaky-network preset for the
+ * mock (and `?faults=0` turns it off), so visitors can watch timeouts and idempotent
+ * retries without a special build. The public build has no faults by default.
+ */
+export function applyUrlOverrides(config: TransportConfig, search: string): TransportConfig {
+  if (config.kind !== 'mock') return config;
+  const faults = new URLSearchParams(search).get('faults');
+  if (faults === '1') return { ...config, mockFaults: FLAKY_NETWORK };
+  if (faults === '0') return { ...config, mockFaults: {} };
+  return config;
+}
+
+/** True when the mock will inject failures, so the UI can show it. */
+export function faultsActive(config: TransportConfig): boolean {
+  return config.kind === 'mock' && Object.values(config.mockFaults).some((rate) => (rate ?? 0) > 0);
+}

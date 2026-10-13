@@ -1,0 +1,27 @@
+# Deep Reef static demo on Apache (cPanel). Copied into dist/ by the build.
+
+Options -Indexes
+
+# Uncomment once the subdomain has an SSL certificate (cPanel > SSL/TLS Status > AutoSSL),
+# otherwise the redirect would make the site unreachable.
+# RewriteEngine On
+# RewriteCond %{HTTPS} !=on
+# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+<IfModule mod_headers.c>
+  # Files in assets/ have a content hash in their name and never change: cache for a year.
+  <FilesMatch "\.(js|css|svg|png|webp|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  # index.html must be revalidated, so a new deploy is picked up at once.
+  <FilesMatch "^(index\.html)?$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript text/javascript application/json image/svg+xml
+</IfModule>

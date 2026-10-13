@@ -115,7 +115,7 @@ function buildPaths(errors: (...codes: ServerErrorCode[]) => Record<string, Json
         summary: 'Create an anonymous demo session',
         description: 'Opens a session with the starting balance and returns the game configuration.',
         responses: {
-          '201': { description: 'Session created.', content: json(ref('CreateSessionResponse')) },
+          '201': { description: 'Session created.', content: json(ref('Session')) },
           ...errors('RATE_LIMITED', 'INTERNAL_ERROR', 'SERVICE_UNAVAILABLE'),
         },
       },
@@ -124,10 +124,10 @@ function buildPaths(errors: (...codes: ServerErrorCode[]) => Record<string, Json
       get: {
         operationId: 'getSession',
         tags: ['sessions'],
-        summary: 'Get a session balance',
+        summary: 'Get a session (balance and game configuration)',
         parameters: [sessionIdParam],
         responses: {
-          '200': { description: 'Current balance.', content: json(ref('SessionResponse')) },
+          '200': { description: 'The session: balance and game configuration.', content: json(ref('Session')) },
           ...errors('VALIDATION_ERROR', 'SESSION_NOT_FOUND', 'RATE_LIMITED', 'INTERNAL_ERROR'),
         },
       },

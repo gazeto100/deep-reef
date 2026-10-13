@@ -1,7 +1,15 @@
 import type { GameServer } from '@deep-reef/contract/GameServer';
 import type { TransportConfig } from './config';
 import type { MockOptions } from './mock/MockGameServer';
+import type { KeyValueStorage } from './storage';
 import { ResilientGameServer, type ResilienceOptions } from './ResilientGameServer';
+
+export interface GameServerOverrides {
+  readonly mock?: MockOptions;
+  /** Where the mock keeps balances; null keeps them in memory only. */
+  readonly storage?: KeyValueStorage | null;
+  readonly resilience?: ResilienceOptions;
+}
 
 /**
  * Builds the GameServer the client uses, chosen by configuration and always wrapped in
@@ -10,14 +18,18 @@ import { ResilientGameServer, type ResilienceOptions } from './ResilientGameServ
  */
 export async function createGameServer(
   config: TransportConfig,
-  overrides: { readonly mock?: MockOptions; readonly resilience?: ResilienceOptions } = {},
+  overrides: GameServerOverrides = {},
 ): Promise<GameServer> {
   let inner: GameServer;
   switch (config.kind) {
     case 'mock': {
       // Dynamic import: HTTP builds do not ship the game engine.
       const { createMockGameServer } = await import('./mock/createMockGameServer');
-      inner = createMockGameServer({ faults: config.mockFaults, ...overrides.mock });
+      inner = await createMockGameServer({
+        faults: config.mockFaults,
+        storage: overrides.storage ?? null,
+        ...overrides.mock,
+      });
       break;
     }
     case 'http':

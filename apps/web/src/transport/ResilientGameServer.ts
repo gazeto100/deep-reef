@@ -1,6 +1,6 @@
 import { GameServerError, isGameServerError } from '@deep-reef/contract/errors';
 import type { AbortSignalLike, GameServer, RequestOptions } from '@deep-reef/contract/GameServer';
-import type { CreateSessionResponse, SessionResponse, SpinRequest, SpinResponse } from '@deep-reef/contract/schemas';
+import type { Session, SpinRequest, SpinResponse } from '@deep-reef/contract/schemas';
 import { raceAbort, sleep, throwIfAborted } from './abort';
 
 export interface ResilienceOptions {
@@ -49,11 +49,11 @@ export class ResilientGameServer implements GameServer {
     this.onRetry = options.onRetry;
   }
 
-  createSession(options?: RequestOptions): Promise<CreateSessionResponse> {
+  createSession(options?: RequestOptions): Promise<Session> {
     return this.withRetry('createSession', options?.signal, (signal) => this.inner.createSession({ signal }));
   }
 
-  getSession(sessionId: string, options?: RequestOptions): Promise<SessionResponse> {
+  getSession(sessionId: string, options?: RequestOptions): Promise<Session> {
     return this.withRetry('getSession', options?.signal, (signal) => this.inner.getSession(sessionId, { signal }));
   }
 

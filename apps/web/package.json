@@ -13,9 +13,11 @@
     "@deep-reef/contract": "*",
     "@deep-reef/game-service": "*",
     "@deep-reef/math": "*",
+    "@reduxjs/toolkit": "^2.13.0",
     "pixi.js": "^8.21.0",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "react-redux": "^9.3.0"
   },
   "devDependencies": {
     "@types/react": "^19.3.0",

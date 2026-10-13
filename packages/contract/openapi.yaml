@@ -29,7 +29,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CreateSessionResponse"
+                $ref: "#/components/schemas/Session"
         "429":
           $ref: "#/components/responses/RATE_LIMITED"
         "500":
@@ -41,7 +41,7 @@ paths:
       operationId: getSession
       tags:
         - sessions
-      summary: Get a session balance
+      summary: Get a session (balance and game configuration)
       parameters:
         - name: sessionId
           in: path
@@ -52,11 +52,11 @@ paths:
             format: uuid
       responses:
         "200":
-          description: Current balance.
+          description: "The session: balance and game configuration."
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SessionResponse"
+                $ref: "#/components/schemas/Session"
         "400":
           $ref: "#/components/responses/VALIDATION_ERROR"
         "404":
@@ -259,7 +259,7 @@ components:
           description: Round win cap as a multiple of total bet.
       additionalProperties: false
       title: GameConfig
-    CreateSessionResponse:
+    Session:
       type: object
       required:
         - sessionId
@@ -277,23 +277,7 @@ components:
         config:
           $ref: "#/components/schemas/GameConfig"
       additionalProperties: false
-      title: CreateSessionResponse
-    SessionResponse:
-      type: object
-      required:
-        - sessionId
-        - balance
-      properties:
-        sessionId:
-          type: string
-          format: uuid
-          description: RFC 4122 UUID.
-        balance:
-          type: integer
-          minimum: 0
-          description: Amount in credits (integer).
-      additionalProperties: false
-      title: SessionResponse
+      title: Session
     SpinRequest:
       type: object
       required:

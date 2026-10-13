@@ -1,61 +1,69 @@
-import { PixiCanvas } from '@framework/react/PixiCanvas';
-import type { PixiHostEvent } from '@framework/pixi/PixiHost';
-import { Graphics, type Application } from 'pixi.js';
-import { useState } from 'react';
+import { connectionRetrying } from '@framework/state/actions';
+import { faultModeSet } from '@framework/state/slices';
+import { createSlotStore, type SlotStore } from '@framework/state/store';
+import { startSession } from '@framework/state/thunks';
+import { applyUrlOverrides, faultsActive, readTransportConfig } from '@transport/config';
+import { createGameServer } from '@transport/createGameServer';
+import type { RetryEvent } from '@transport/ResilientGameServer';
+import { randomId } from '@transport/randomId';
+import { browserStorage } from '@transport/storage';
+import { GameScreen } from '@ui/GameScreen';
+import { useEffect, useState } from 'react';
+import { Provider } from 'react-redux';
 
 /**
- * Composition root. In phase 2 it is only a harness that proves the Pixi canvas mounts
- * and unmounts cleanly: toggle it and watch the lifecycle log and the canvas count.
- * The real UI arrives in phase 4.
+ * Composition root: the only place that knows every layer. It reads the transport
+ * configuration (environment + ?faults= in the URL), builds the GameServer and the store,
+ * and wires the server's retry notifications into state.
  */
-export function App() {
-  const [mounted, setMounted] = useState(true);
-  const [log, setLog] = useState<string[]>([]);
-  const [canvases, setCanvases] = useState(0);
+async function bootstrap(): Promise<SlotStore> {
+  const config = applyUrlOverrides(readTransportConfig(import.meta.env), window.location.search);
+  const storage = browserStorage();
 
-  const record = (event: PixiHostEvent): void => {
-    setLog((entries) => [...entries.slice(-11), event]);
-    setCanvases(document.querySelectorAll('canvas').length);
-  };
+  // The server reports retries to the store, but the store needs the server first.
+  let reportRetry: (event: RetryEvent) => void = () => undefined;
+  const server = await createGameServer(config, {
+    storage,
+    resilience: { onRetry: (event) => reportRetry(event) },
+  });
+  const store = createSlotStore({ server, storage, newRequestId: randomId });
+  reportRetry = (event) => store.dispatch(connectionRetrying({ attempt: event.attempt, code: event.error.code }));
 
-  const toggle = (): void => {
-    setMounted((m) => !m);
-    // The DOM updates after this render; count on the next frame.
-    requestAnimationFrame(() => setCanvases(document.querySelectorAll('canvas').length));
-  };
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ padding: 8, fontSize: 14, display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-        <strong>Deep Reef: phase 2 shell</strong>
-        <button type="button" onClick={toggle}>
-          {mounted ? 'Unmount Pixi' : 'Mount Pixi'}
-        </button>
-        <span data-testid="canvas-count">canvases in DOM: {canvases}</span>
-        <span data-testid="lifecycle-log">log: {log.join(' → ') || '—'}</span>
-      </div>
-      {mounted && (
-        <PixiCanvas
-          className="pixi-stage"
-          options={{ background: '#06263f', antialias: true }}
-          onEvent={record}
-          onReady={drawPlaceholder}
-        />
-      )}
-    </div>
-  );
+  store.dispatch(faultModeSet(faultsActive(config)));
+  void store.dispatch(startSession());
+  return store;
 }
 
-/** A 5x3 placeholder grid, just to show the stage renders. */
-function drawPlaceholder(app: Application): void {
-  const grid = new Graphics();
-  const cell = 64;
-  const gap = 8;
-  for (let reel = 0; reel < 5; reel++) {
-    for (let row = 0; row < 3; row++) {
-      grid.roundRect(reel * (cell + gap), row * (cell + gap), cell, cell, 10).fill({ color: 0x1b6fa8, alpha: 0.6 });
-    }
+// One bootstrap per page, even though StrictMode runs effects twice in development.
+let booting: Promise<SlotStore> | null = null;
+
+type Boot = { status: 'loading' } | { status: 'ready'; store: SlotStore } | { status: 'failed'; message: string };
+
+export function App() {
+  const [boot, setBoot] = useState<Boot>({ status: 'loading' });
+
+  useEffect(() => {
+    let active = true;
+    booting ??= bootstrap();
+    booting.then(
+      (store) => active && setBoot({ status: 'ready', store }),
+      (error: unknown) => active && setBoot({ status: 'failed', message: String(error) }),
+    );
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (boot.status === 'ready') {
+    return (
+      <Provider store={boot.store}>
+        <GameScreen />
+      </Provider>
+    );
   }
-  grid.position.set((app.screen.width - grid.width) / 2, (app.screen.height - grid.height) / 2);
-  app.stage.addChild(grid);
+  return (
+    <div className="boot" role="status">
+      {boot.status === 'failed' ? `Неуспешно стартиране: ${boot.message}` : 'Зареждане…'}
+    </div>
+  );
 }

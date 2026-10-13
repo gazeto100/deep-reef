@@ -1,5 +1,5 @@
 import { GameServerError } from '@deep-reef/contract/errors';
-import { CreateSessionResponse, SpinResponse } from '@deep-reef/contract/schemas';
+import { Session, SpinResponse } from '@deep-reef/contract/schemas';
 import { DEEP_REEF } from '@deep-reef/math/config/deepReef';
 import { TEST_GAME } from '@deep-reef/math/engine/testGame.fixture';
 import { ScriptedRng } from '@deep-reef/math/rng/ScriptedRng';
@@ -37,13 +37,11 @@ describe('GameService', () => {
     const service = makeService();
     const session = await service.createSession();
 
-    expect(Value.Check(CreateSessionResponse, session)).toBe(true);
+    expect(Value.Check(Session, session)).toBe(true);
     expect(session.balance).toBe(10_000);
     expect(session.config.betLevels).toEqual([...DEEP_REEF.betLevels]);
-    await expect(service.getSession(session.sessionId)).resolves.toEqual({
-      sessionId: session.sessionId,
-      balance: 10_000,
-    });
+    // Resuming a session returns the same view, config included.
+    await expect(service.getSession(session.sessionId)).resolves.toEqual(session);
   });
 
   it('plays a spin: debits the bet, credits the win, returns a contract-valid response', async () => {

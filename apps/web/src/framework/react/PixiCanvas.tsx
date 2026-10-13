@@ -5,8 +5,12 @@ import { PixiHost, type PixiHostEvent } from '../pixi/PixiHost';
 export interface PixiCanvasProps {
   /** Read once, when the canvas mounts. Changing it later does not re-create the app. */
   readonly options?: Partial<ApplicationOptions>;
-  /** Called once the app is initialised and its canvas is in the DOM. */
-  readonly onReady?: (app: Application) => void;
+  /**
+   * Called once the app is initialised and its canvas is in the DOM. It may return a
+   * cleanup function, which runs before the app is destroyed (e.g. to unsubscribe a
+   * scene from the store).
+   */
+  readonly onReady?: (app: Application) => void | (() => void);
   readonly onEvent?: (event: PixiHostEvent) => void;
   readonly className?: string;
 }
@@ -28,17 +32,21 @@ export function PixiCanvas({ options, onReady, onEvent, className }: PixiCanvasP
     const container = containerRef.current;
     if (!container) return;
 
+    let cleanup: (() => void) | undefined;
     const host = new PixiHost(() => new Application(), handleEvent);
     host
       .mount(container, { resizeTo: container, ...initialOptions.current })
       .then((app) => {
-        if (app) handleReady(app);
+        if (!app) return; // disposed during init: nothing was mounted
+        const result = handleReady(app);
+        if (typeof result === 'function') cleanup = result;
       })
       .catch((error: unknown) => {
         console.error('Pixi failed to initialise', error);
       });
 
     return () => {
+      cleanup?.();
       host.dispose();
     };
   }, []);
