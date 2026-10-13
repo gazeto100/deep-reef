@@ -4,13 +4,16 @@ import { useSlotDispatch, useSlotSelector } from '@framework/state/hooks';
 import { primaryAction, resetSession } from '@framework/state/thunks';
 import { credits, errorMessage, T } from './strings';
 
+/** Stable fallback: a fresh [] per call would make the selector re-render on every store update. */
+const NO_LEVELS: readonly number[] = [];
+
 /** Controls and readouts below the reels. All decisions come from state; this only renders and dispatches. */
 export function Hud() {
   const dispatch = useSlotDispatch();
   const balance = useSlotSelector((s) => s.wallet.balance);
   const win = useSlotSelector(selectDisplayedWin);
   const bet = useSlotSelector(selectBet);
-  const levels = useSlotSelector((s) => s.session.config?.betLevels ?? []);
+  const levels = useSlotSelector((s) => s.session.config?.betLevels ?? NO_LEVELS);
   const levelIndex = useSlotSelector((s) => s.bet.levelIndex);
   const action = useSlotSelector(selectPrimaryAction);
   const idle = useSlotSelector((s) => s.round.phase === 'idle');
