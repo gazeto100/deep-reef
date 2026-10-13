@@ -6,8 +6,11 @@ import type { Rng } from './Rng';
  */
 export class ScriptedRng implements Rng {
   private cursor = 0;
+  private readonly values: readonly number[];
 
-  constructor(private readonly values: readonly number[]) {}
+  constructor(values: readonly number[]) {
+    this.values = values;
+  }
 
   get remaining(): number {
     return this.values.length - this.cursor;

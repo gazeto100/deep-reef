@@ -35,11 +35,13 @@ interface SpinContext {
  * engine instance serves the simulator (seeded) and the server (its own RNG).
  */
 export class SlotEngine<S extends string> {
+  readonly definition: GameDefinition<S>;
   readonly game: CompiledGame<S>;
   private readonly window: Uint8Array;
   private readonly lineBuffer: Uint8Array;
 
-  constructor(readonly definition: GameDefinition<S>) {
+  constructor(definition: GameDefinition<S>) {
+    this.definition = definition;
     this.game = compileGame(definition);
     this.window = new Uint8Array(this.game.reelCount * this.game.rowCount);
     this.lineBuffer = new Uint8Array(this.game.reelCount);
