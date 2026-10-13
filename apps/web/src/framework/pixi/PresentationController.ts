@@ -37,7 +37,10 @@ export const TURBO_TIMINGS: PresentationTimings = {
  * - requesting -> presenting: reels land on the server's grid, wins are shown, free spins
  *   are played back, then presentationFinished credits the win;
  * - requesting -> idle (request failed): reels stop on the previous grid;
- * - a hurry press slams the reels or skips the wins; turbo shortens every timing.
+ * - a hurry press slams the reels or skips the wins; turbo shortens every timing;
+ * - when the page is hidden (tab switched, phone locked) the round is fast-forwarded to
+ *   its end: browsers pause requestAnimationFrame in hidden pages, and a round must not
+ *   hang half-presented with the win not yet credited.
  *
  * Returns a dispose function for the React boundary.
  */
@@ -65,6 +68,11 @@ export function mountSlotScene(app: Application, store: SlotStore, theme: Symbol
   app.ticker.add(tick);
 
   const hurry = new Hurry();
+  const pageHidden = (): boolean => document.hidden;
+  const onVisibilityChange = (): void => {
+    if (document.hidden) hurry.press(); // cut the running step; the rest checks pageHidden()
+  };
+  document.addEventListener('visibilitychange', onVisibilityChange);
   const timings = (): PresentationTimings => (store.getState().settings.turbo ? TURBO_TIMINGS : NORMAL_TIMINGS);
   let previous: SlotState = store.getState();
   let presentedRequestId: string | null = null;
@@ -80,15 +88,17 @@ export function mountSlotScene(app: Application, store: SlotStore, theme: Symbol
   /** Lets the reels spin their minimum time, then stops them; a press slams them. */
   const landReels = async (grid: readonly (readonly string[])[], slamNow: boolean): Promise<void> => {
     const remaining = timings().minSpinMs - (performance.now() - spinStartedAt);
-    if (slamNow || (remaining > 0 && (await hurry.wait(remaining)) === 'hurried')) {
+    if (slamNow || pageHidden() || (remaining > 0 && (await hurry.wait(remaining)) === 'hurried')) {
       scene.reelSet.slam(grid);
     } else {
       await scene.reelSet.stop(grid, timings(), hurry);
+      if (pageHidden()) scene.reelSet.slam(grid); // hidden mid-stop: the ticker may be paused
     }
     lastGrid = grid;
   };
 
-  const showWins = (spin: SpinOutcome): Promise<void> => scene.winPresenter.show(spin, timings().winShowMs, hurry);
+  const showWins = (spin: SpinOutcome): Promise<void> =>
+    pageHidden() ? Promise.resolve() : scene.winPresenter.show(spin, timings().winShowMs, hurry);
 
   const present = async (result: SpinResponse): Promise<void> => {
     const { base, freeSpins } = result.round;
@@ -101,7 +111,7 @@ export function mountSlotScene(app: Application, store: SlotStore, theme: Symbol
       let awarded = base.scatter?.freeSpinsAwarded ?? freeSpins.awarded;
       let win = base.win;
       store.dispatch(freeSpinProgress({ index: 0, total: awarded, win }));
-      await hurry.wait(timings().freeSpinsIntroMs);
+      if (!pageHidden()) await hurry.wait(timings().freeSpinsIntroMs);
 
       for (const [i, spin] of freeSpins.spins.entries()) {
         if (disposed) return;
@@ -143,6 +153,7 @@ export function mountSlotScene(app: Application, store: SlotStore, theme: Symbol
   return () => {
     disposed = true;
     unsubscribe();
+    document.removeEventListener('visibilitychange', onVisibilityChange);
     hurry.press();
     app.ticker.remove(tick);
     // Unmounting mid-round must not lose the win: finish the round in state.
