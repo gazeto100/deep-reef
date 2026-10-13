@@ -70,11 +70,18 @@ export const GameConfig = Type.Object(
       {
         triggerCount: Type.Integer({ minimum: 1 }),
         awarded: Type.Integer({ minimum: 1 }),
+        retriggerAwarded: Type.Integer({ minimum: 0 }),
+        maxTotal: Type.Integer({
+          minimum: 1,
+          description: 'Most free spins one feature can award, retriggers included.',
+        }),
         winMultiplier: Type.Integer({ minimum: 1 }),
       },
       closed,
     ),
     maxWinMultiplier: Type.Integer({ minimum: 1, description: 'Round win cap as a multiple of total bet.' }),
+    wildReels: Type.Array(Type.Integer({ minimum: 0 }), { description: '0-based reels on which the wild can appear.' }),
+    rtp: Type.Number({ exclusiveMinimum: 0, maximum: 1, description: 'Theoretical return to player, e.g. 0.956.' }),
   },
   { ...closed, title: 'GameConfig' },
 );

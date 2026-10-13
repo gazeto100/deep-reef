@@ -67,6 +67,9 @@ export const DEEP_REEF_RULES: DeepReefRules = {
   // Chosen from the simulated tail (docs/math-simulation.md): reached about 1 in 4M
   // rounds, costs ~0.005% RTP, and is a max win the game really reaches.
   maxWinMultiplier: 2000,
+  // Exact capped RTP is at most 95.639% (docs/math-report.md); the multi-spin part of the
+  // cap removes a few hundredths more, so the advertised figure is rounded down.
+  declaredRtp: 0.956,
   // Total bet in credits; line bet = total / 20.
   betLevels: [20, 40, 100, 200, 400, 1000],
   constraints: {

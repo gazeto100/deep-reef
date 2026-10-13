@@ -188,6 +188,13 @@ export function verifyGame<S extends string>(
     `uncapped ${pct(a.rtpUncapped, 3)}, capped <= ${pct(a.rtpCappedUpperBound, 3)}`,
   );
 
+  // The advertised RTP must be true: at most the exact capped bound, and close to it.
+  check(
+    'declared RTP is true (<= exact capped bound, within 0.1 pt)',
+    def.declaredRtp <= a.rtpCappedUpperBound && def.declaredRtp >= a.rtpCappedUpperBound - 0.001,
+    `declared ${pct(def.declaredRtp, 2)}, capped <= ${pct(a.rtpCappedUpperBound, 3)}`,
+  );
+
   // Determinism
   const engine = new SlotEngine(def);
   const bet = def.betLevels[0] ?? 0;

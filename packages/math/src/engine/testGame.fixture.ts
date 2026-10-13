@@ -33,6 +33,7 @@ export const TEST_GAME: GameDefinition<TestSymbol> = {
   freeSpinReels: [STRIP, STRIP, STRIP, STRIP, STRIP],
   freeSpins: { triggerCount: 3, awarded: 3, retriggerAwarded: 2, maxTotal: 5, winMultiplier: 2 },
   maxWinMultiplier: 1000,
+  declaredRtp: 0.5,
   betLevels: [3, 30],
   constraints: {
     wildReels: [0, 1, 2, 3, 4],

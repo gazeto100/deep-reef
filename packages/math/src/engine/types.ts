@@ -24,6 +24,11 @@ export interface GameDefinition<S extends string = string> {
   readonly freeSpins: FreeSpinRules;
   /** Hard cap on the total win of one round, as a multiple of total bet. */
   readonly maxWinMultiplier: number;
+  /**
+   * The RTP the game advertises to players (e.g. 0.956). verify checks it never exceeds
+   * the exact upper bound for the capped RTP, so the published figure is always true.
+   */
+  readonly declaredRtp: number;
   /** Allowed total bets in credits. Each must be divisible by the payline count. */
   readonly betLevels: readonly number[];
   /** Design constraints checked by verify (not needed by the engine itself). */
