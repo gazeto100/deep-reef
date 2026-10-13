@@ -29,7 +29,9 @@ export function layoutStrip<S extends string>(
     const strip = blocks.flat();
     if (findLayoutViolations(strip, options).length === 0) return strip;
   }
-  throw new Error(`could not lay out strip ${JSON.stringify(counts)} with stacks ${JSON.stringify(options.stacks ?? {})}`);
+  throw new Error(
+    `could not lay out strip ${JSON.stringify(counts)} with stacks ${JSON.stringify(options.stacks ?? {})}`,
+  );
 }
 
 function shuffle<T>(items: T[], rng: Xoshiro128): void {

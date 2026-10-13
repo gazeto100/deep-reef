@@ -69,7 +69,12 @@ function renderConfig(candidate: Candidate, def: GameDefinition<DeepReefSymbol>)
   const strip = (s: readonly string[]): string => {
     const rows: string[] = [];
     for (let i = 0; i < s.length; i += 8) {
-      rows.push(`      ${s.slice(i, i + 8).map((x) => `'${x}'`).join(', ')},`);
+      rows.push(
+        `      ${s
+          .slice(i, i + 8)
+          .map((x) => `'${x}'`)
+          .join(', ')},`,
+      );
     }
     return `    [\n${rows.join('\n')}\n    ],`;
   };
@@ -170,7 +175,7 @@ function main(): void {
       'SD (sim)': sim.roundWin.sd.toFixed(2),
       'max (sim)': `${sim.maxRound.win.toFixed(0)}x`,
       '>=1000x (sim)': sim.roundsAtLeast.find((t) => t.threshold === 1000)?.count ?? 0,
-      's': seconds,
+      s: seconds,
     };
   });
 

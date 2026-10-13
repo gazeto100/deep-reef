@@ -1,14 +1,6 @@
 import type { Rng } from '../rng/Rng';
 import { compileGame, type CompiledGame } from './compile';
-import {
-  countScatters,
-  evaluateLine,
-  fillWindow,
-  linePayOf,
-  readLine,
-  unpackCount,
-  unpackSymbol,
-} from './evaluate';
+import { countScatters, evaluateLine, fillWindow, linePayOf, readLine, unpackCount, unpackSymbol } from './evaluate';
 import type {
   FreeSpinsResult,
   GameDefinition,

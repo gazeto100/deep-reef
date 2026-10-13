@@ -9,5 +9,7 @@ for (const c of checks) {
 }
 
 const failed = checks.filter((c) => !c.ok);
-console.log(`\n${checks.length - failed.length}/${checks.length} checks passed in ${((performance.now() - started) / 1000).toFixed(1)} s`);
+console.log(
+  `\n${checks.length - failed.length}/${checks.length} checks passed in ${((performance.now() - started) / 1000).toFixed(1)} s`,
+);
 if (failed.length > 0) process.exitCode = 1;

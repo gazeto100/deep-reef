@@ -54,12 +54,47 @@ const PAYS_V2: Candidate['linePays'] = {
 };
 
 // Base reels, v1: 32 symbols per reel, one scatter, wilds on reels 2-4 only.
-const BASE_OUTER_V1: Counts = { SCATTER: 1, SHARK: 2, OCTOPUS: 2, TURTLE: 3, SEAHORSE: 3, PUFFER: 3, A: 4, K: 4, Q: 5, J: 5 };
-const BASE_INNER_V1: Counts = { WILD: 2, SCATTER: 1, SHARK: 2, OCTOPUS: 2, TURTLE: 3, SEAHORSE: 3, PUFFER: 3, A: 4, K: 4, Q: 4, J: 4 };
+const BASE_OUTER_V1: Counts = {
+  SCATTER: 1,
+  SHARK: 2,
+  OCTOPUS: 2,
+  TURTLE: 3,
+  SEAHORSE: 3,
+  PUFFER: 3,
+  A: 4,
+  K: 4,
+  Q: 5,
+  J: 5,
+};
+const BASE_INNER_V1: Counts = {
+  WILD: 2,
+  SCATTER: 1,
+  SHARK: 2,
+  OCTOPUS: 2,
+  TURTLE: 3,
+  SEAHORSE: 3,
+  PUFFER: 3,
+  A: 4,
+  K: 4,
+  Q: 4,
+  J: 4,
+};
 
 // Free-spin reels, v1: more wilds and fewer low symbols on reels 2-4.
 const FS_OUTER_V1: Counts = BASE_OUTER_V1;
-const FS_INNER_V1: Counts = { WILD: 4, SCATTER: 1, SHARK: 2, OCTOPUS: 2, TURTLE: 3, SEAHORSE: 3, PUFFER: 3, A: 4, K: 4, Q: 3, J: 3 };
+const FS_INNER_V1: Counts = {
+  WILD: 4,
+  SCATTER: 1,
+  SHARK: 2,
+  OCTOPUS: 2,
+  TURTLE: 3,
+  SEAHORSE: 3,
+  PUFFER: 3,
+  A: 4,
+  K: 4,
+  Q: 3,
+  J: 3,
+};
 
 // v3: one more wild on base reels 2-4 (replaces a J), two more on FS reels 2-4 (replace Q and J).
 const BASE_INNER_V3: Counts = { ...BASE_INNER_V1, WILD: 3, J: 3 };

@@ -20,12 +20,24 @@ section(
   markdownTable(
     ['Metric', 'Value', 'How it is obtained'],
     [
-      ['Base game: line wins', pct(a.base.rtpLines, 3), `exact, ${a.base.combinations.toLocaleString('en-US')} stop combinations`],
+      [
+        'Base game: line wins',
+        pct(a.base.rtpLines, 3),
+        `exact, ${a.base.combinations.toLocaleString('en-US')} stop combinations`,
+      ],
       ['Base game: scatter pays', pct(a.base.rtpScatter, 3), 'exact'],
       ['Free spins (uncapped)', pct(a.rtpFeatureUncapped, 3), 'exact: P(trigger) x E[spins] x E[FS spin win] (Wald)'],
       ['**RTP without cap**', `**${pct(a.rtpUncapped, 3)}**`, 'exact'],
-      [`Cap loss (${a.maxWinMultiplier}x), lower bound`, pct(a.capLossLowerBound, 4), 'exact: E[free spins] x E[(single spin - cap)+] (Wald)'],
-      ['**RTP with cap, upper bound**', `**≤ ${pct(a.rtpCappedUpperBound, 3)}**`, 'exact bound; the simulator estimates the rest of the cap loss'],
+      [
+        `Cap loss (${a.maxWinMultiplier}x), lower bound`,
+        pct(a.capLossLowerBound, 4),
+        'exact: E[free spins] x E[(single spin - cap)+] (Wald)',
+      ],
+      [
+        '**RTP with cap, upper bound**',
+        `**≤ ${pct(a.rtpCappedUpperBound, 3)}**`,
+        'exact bound; the simulator estimates the rest of the cap loss',
+      ],
       ['A single spin reaches the cap', oneIn(a.singleSpinCapProbabilityPerRound), 'exact, per round'],
       ['Hit rate', pct(a.hitRate, 4), 'exact (every trigger also pays scatters)'],
       ['Free spins trigger', oneIn(a.triggerProbability), 'exact'],
@@ -33,7 +45,11 @@ section(
       ['Free spins per feature', a.expectedFreeSpinsPerFeature.toFixed(3), 'exact (Markov chain incl. 50-spin limit)'],
       ['Average feature win', `${a.featureMeanUncapped.toFixed(2)}x bet`, 'exact, uncapped'],
       ['Base game SD per spin', `${Math.sqrt(a.base.winVariance).toFixed(3)}x bet`, 'exact, base spins only'],
-      ['Max base spin', `${a.baseMaxWin.toFixed(1)}x bet`, `exact; < ${a.maxWinMultiplier}x, so the cap never binds in base`],
+      [
+        'Max base spin',
+        `${a.baseMaxWin.toFixed(1)}x bet`,
+        `exact; < ${a.maxWinMultiplier}x, so the cap never binds in base`,
+      ],
       ['Max single free spin', `${a.freeSpinMaxWin.toFixed(1)}x bet`, 'exact, x2 included'],
       ['Cap effect beyond the bound', 'not computed', 'rounds where several spins add up past the cap -> simulator'],
       ['Overall volatility (SD)', 'not computed', 'feature variance with retriggers -> simulator'],
@@ -55,15 +71,32 @@ const paytable = (set: ReelSetAnalysis, multiplier: number, rtpLabel: string): s
   );
 
 section('Base game line pays', paytable(a.base, 1, 'RTP'));
-section(`Free spins line pays (x${winMultiplier} included)`, paytable(a.freeSpins, winMultiplier, 'Win per free spin (x bet)'));
+section(
+  `Free spins line pays (x${winMultiplier} included)`,
+  paytable(a.freeSpins, winMultiplier, 'Win per free spin (x bet)'),
+);
 
 section(
   'Scatter pays (x total bet, anywhere)',
   markdownTable(
-    ['Scatters', 'Pay', 'Base: probability', 'Base: RTP', 'FS: probability', `FS: win per spin (x${winMultiplier}, x bet)`],
+    [
+      'Scatters',
+      'Pay',
+      'Base: probability',
+      'Base: RTP',
+      'FS: probability',
+      `FS: win per spin (x${winMultiplier}, x bet)`,
+    ],
     a.base.scatterStats.map((s) => {
       const fs = a.freeSpins.scatterStats.find((f) => f.count === s.count);
-      return [s.count, s.pay, oneIn(s.probability), pct(s.rtp, 3), oneIn(fs?.probability ?? 0), pct((fs?.rtp ?? 0) * winMultiplier, 3)];
+      return [
+        s.count,
+        s.pay,
+        oneIn(s.probability),
+        pct(s.rtp, 3),
+        oneIn(fs?.probability ?? 0),
+        pct((fs?.rtp ?? 0) * winMultiplier, 3),
+      ];
     }),
   ),
 );

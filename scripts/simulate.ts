@@ -62,25 +62,60 @@ interface Comparison {
 const proportion = (p: number, n: number): number => Math.sqrt((p * (1 - p)) / n);
 
 const comparisons: Comparison[] = [
-  { name: 'RTP (capped; exact = upper bound)', exact: exact.rtpCappedUpperBound, format: (x) => pct(x, 3), sim: (r) => [r.roundWin.mean, r.roundWin.seMean] },
-  { name: 'Base game RTP', exact: exact.rtpBase, format: (x) => pct(x, 3), sim: (r) => [r.baseWin.mean, r.baseWin.seMean] },
+  {
+    name: 'RTP (capped; exact = upper bound)',
+    exact: exact.rtpCappedUpperBound,
+    format: (x) => pct(x, 3),
+    sim: (r) => [r.roundWin.mean, r.roundWin.seMean],
+  },
+  {
+    name: 'Base game RTP',
+    exact: exact.rtpBase,
+    format: (x) => pct(x, 3),
+    sim: (r) => [r.baseWin.mean, r.baseWin.seMean],
+  },
   {
     name: 'Free spins RTP (capped; exact = upper bound)',
     exact: exact.rtpFeatureUncapped - exact.capLossLowerBound,
     format: (x) => pct(x, 3),
     sim: (r) => [r.featureWinPerRound.mean, r.featureWinPerRound.seMean],
   },
-  { name: 'Hit rate', exact: exact.hitRate, format: (x) => pct(x, 3), sim: (r) => [r.hitRate, proportion(exact.hitRate, r.rounds)] },
-  { name: 'FS trigger probability', exact: exact.triggerProbability, format: (x) => `${pct(x, 4)} (${oneIn(x)})`, sim: (r) => [r.triggerRate, proportion(exact.triggerProbability, r.rounds)] },
+  {
+    name: 'Hit rate',
+    exact: exact.hitRate,
+    format: (x) => pct(x, 3),
+    sim: (r) => [r.hitRate, proportion(exact.hitRate, r.rounds)],
+  },
+  {
+    name: 'FS trigger probability',
+    exact: exact.triggerProbability,
+    format: (x) => `${pct(x, 4)} (${oneIn(x)})`,
+    sim: (r) => [r.triggerRate, proportion(exact.triggerProbability, r.rounds)],
+  },
   {
     name: 'Retrigger per free spin',
     exact: exact.freeSpins.triggerProbability,
     format: (x) => pct(x, 3),
     sim: (r) => [r.retriggerRate, proportion(exact.freeSpins.triggerProbability, r.featureSpins.mean * r.features)],
   },
-  { name: 'Free spins per feature', exact: exact.expectedFreeSpinsPerFeature, format: (x) => x.toFixed(3), sim: (r) => [r.featureSpins.mean, r.featureSpins.seMean] },
-  { name: 'Single free spin win (x bet)', exact: exact.freeSpins.meanWin * DEEP_REEF.freeSpins.winMultiplier, format: (x) => x.toFixed(4), sim: (r) => [r.freeSpinWin.mean, r.freeSpinWin.seMean] },
-  { name: 'Feature win (x bet)', exact: exact.featureMeanUncapped, format: (x) => x.toFixed(2), sim: (r) => [r.featureWin.mean, r.featureWin.seMean] },
+  {
+    name: 'Free spins per feature',
+    exact: exact.expectedFreeSpinsPerFeature,
+    format: (x) => x.toFixed(3),
+    sim: (r) => [r.featureSpins.mean, r.featureSpins.seMean],
+  },
+  {
+    name: 'Single free spin win (x bet)',
+    exact: exact.freeSpins.meanWin * DEEP_REEF.freeSpins.winMultiplier,
+    format: (x) => x.toFixed(4),
+    sim: (r) => [r.freeSpinWin.mean, r.freeSpinWin.seMean],
+  },
+  {
+    name: 'Feature win (x bet)',
+    exact: exact.featureMeanUncapped,
+    format: (x) => x.toFixed(2),
+    sim: (r) => [r.featureWin.mean, r.featureWin.seMean],
+  },
 ];
 
 section(
@@ -93,7 +128,11 @@ section(
       ...results.flatMap((r) => {
         const [value, se] = c.sim(r);
         const z = se > 0 ? (value - c.exact) / se : 0;
-        return [`${c.format(value)} ± ${c.format(Z95 * se)}`, z.toFixed(2), Math.abs(z) <= Z95 ? 'inside' : '**outside**'];
+        return [
+          `${c.format(value)} ± ${c.format(Z95 * se)}`,
+          z.toFixed(2),
+          Math.abs(z) <= Z95 ? 'inside' : '**outside**',
+        ];
       }),
     ]),
   ) +
@@ -105,7 +144,11 @@ section(
 section(
   'Tail events: simulated free spins vs exact probability',
   markdownTable(
-    ['Single free spin win', 'Exact P per spin', ...seedHeaders.flatMap((h) => [`${h}: observed`, 'expected', 'z (Poisson)'])],
+    [
+      'Single free spin win',
+      'Exact P per spin',
+      ...seedHeaders.flatMap((h) => [`${h}: observed`, 'expected', 'z (Poisson)']),
+    ],
     exact.freeSpins.tail.map((t, k) => [
       `>= ${t.threshold}x`,
       oneIn(t.probability),
@@ -127,9 +170,13 @@ section(
     [
       ['SD ± 95% CI', ...results.map((r) => `${r.roundWin.sd.toFixed(3)} ± ${(Z95 * r.roundWin.seSd).toFixed(3)}`)],
       ['Class (<5 low, 5-15 medium, >15 high)', ...results.map((r) => volatilityClass(r.roundWin.sd))],
-      [`Base game only (exact ${Math.sqrt(exact.base.winVariance).toFixed(3)})`, ...results.map((r) => r.baseWin.sd.toFixed(3))],
+      [
+        `Base game only (exact ${Math.sqrt(exact.base.winVariance).toFixed(3)})`,
+        ...results.map((r) => r.baseWin.sd.toFixed(3)),
+      ],
     ],
-  ) + '\n\nThe SD confidence interval uses the delta method with the 4th central moment. With heavy-tailed wins it is optimistic, which is why two seeds are compared.',
+  ) +
+    '\n\nThe SD confidence interval uses the delta method with the 4th central moment. With heavy-tailed wins it is optimistic, which is why two seeds are compared.',
 );
 
 const theoreticalMax = exact.baseMaxWin + DEEP_REEF.freeSpins.maxTotal * exact.freeSpinMaxWin;
@@ -139,16 +186,26 @@ section(
   markdownTable(
     ['', ...seedHeaders],
     [
-      ['Largest round (x bet)', ...results.map((r) => `${r.maxRound.win.toFixed(1)}x (round #${r.maxRound.roundIndex.toLocaleString('en-US')}, ${r.maxRound.freeSpins} FS)`)],
+      [
+        'Largest round (x bet)',
+        ...results.map(
+          (r) =>
+            `${r.maxRound.win.toFixed(1)}x (round #${r.maxRound.roundIndex.toLocaleString('en-US')}, ${r.maxRound.freeSpins} FS)`,
+        ),
+      ],
       ['Largest feature (x bet)', ...results.map((r) => `${r.featureWin.max.toFixed(1)}x`)],
       ['Rounds that hit the cap', ...results.map((r) => String(r.capHits))],
       ['RTP removed by the cap', ...results.map((r) => pct(r.capLost, 4))],
-      ...results[0]!.roundsAtLeast.map((t, k) => [`Rounds >= ${t.threshold}x`, ...results.map((r) => {
-        const count = r.roundsAtLeast[k]?.count ?? 0;
-        return `${count} (${oneIn(count / r.rounds)})`;
-      })]),
+      ...results[0]!.roundsAtLeast.map((t, k) => [
+        `Rounds >= ${t.threshold}x`,
+        ...results.map((r) => {
+          const count = r.roundsAtLeast[k]?.count ?? 0;
+          return `${count} (${oneIn(count / r.rounds)})`;
+        }),
+      ]),
     ],
-  ) + `\n\nUpper bound on an uncapped round: max base spin ${exact.baseMaxWin.toFixed(1)}x + ${DEEP_REEF.freeSpins.maxTotal} free spins × ${exact.freeSpinMaxWin.toFixed(1)}x = ${theoreticalMax.toFixed(0)}x. The cap is therefore reachable in principle.`,
+  ) +
+    `\n\nUpper bound on an uncapped round: max base spin ${exact.baseMaxWin.toFixed(1)}x + ${DEEP_REEF.freeSpins.maxTotal} free spins × ${exact.freeSpinMaxWin.toFixed(1)}x = ${theoreticalMax.toFixed(0)}x. The cap is therefore reachable in principle.`,
 );
 
 section(
@@ -205,22 +262,35 @@ function contributionTable(a: RoundAnalysis, runs: readonly SimulationResult[]):
 
   const rows: (string | number)[][] = [];
   const add = (label: string, exactTotal: number, pick: (r: SimulationResult) => number): void => {
-    rows.push([label, pct(exactTotal, 3), ...runs.map((r) => pct(pick(r), 3)), pick(runs[0]!) > 0 || label.includes('cap') ? 'yes' : '**NO**']);
+    rows.push([
+      label,
+      pct(exactTotal, 3),
+      ...runs.map((r) => pct(pick(r), 3)),
+      pick(runs[0]!) > 0 || label.includes('cap') ? 'yes' : '**NO**',
+    ]);
   };
   const sim = (r: SimulationResult, kind: string, source: string): number =>
-    r.contributions.filter((c) => c.kind === kind && c.source === source).reduce((sum, c) => sum + c.base + c.freeSpins, 0);
+    r.contributions
+      .filter((c) => c.kind === kind && c.source === source)
+      .reduce((sum, c) => sum + c.base + c.freeSpins, 0);
 
   for (const symbol of DEEP_REEF.symbols) {
     if (symbol === DEEP_REEF.wild || symbol === DEEP_REEF.scatter) continue;
     add(symbol, exactLine(a.base, symbol) + fsWeight * exactLine(a.freeSpins, symbol), (r) => sim(r, 'line', symbol));
   }
-  add(`${DEEP_REEF.scatter} (pays)`, a.base.rtpScatter + fsWeight * a.freeSpins.rtpScatter, (r) => sim(r, 'scatter', DEEP_REEF.scatter));
-  add(`${DEEP_REEF.wild} (line wins that used a wild; overlaps the symbols above)`, a.base.rtpLinesWithWild + fsWeight * a.freeSpins.rtpLinesWithWild, (r) => sim(r, 'wild-assisted', DEEP_REEF.wild));
+  add(`${DEEP_REEF.scatter} (pays)`, a.base.rtpScatter + fsWeight * a.freeSpins.rtpScatter, (r) =>
+    sim(r, 'scatter', DEEP_REEF.scatter),
+  );
+  add(
+    `${DEEP_REEF.wild} (line wins that used a wild; overlaps the symbols above)`,
+    a.base.rtpLinesWithWild + fsWeight * a.freeSpins.rtpLinesWithWild,
+    (r) => sim(r, 'wild-assisted', DEEP_REEF.wild),
+  );
   add('max win cap (negative)', 0, (r) => sim(r, 'cap', 'max win cap'));
 
   return (
     markdownTable(['Source', 'Exact (uncapped)', ...seedHeaders, '> 0'], rows) +
-    '\n\nFree-spin wins are included, weighted by trigger probability × expected spins × 2. The exact FS part per symbol uses Wald\'s identity.'
+    "\n\nFree-spin wins are included, weighted by trigger probability × expected spins × 2. The exact FS part per symbol uses Wald's identity."
   );
 }
 
