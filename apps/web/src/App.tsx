@@ -5,6 +5,7 @@ import { startSession } from '@framework/state/thunks';
 import { applyUrlOverrides, faultsActive, readTransportConfig } from '@transport/config';
 import { createGameServer } from '@transport/createGameServer';
 import type { RetryEvent } from '@transport/ResilientGameServer';
+import { randomId } from '@transport/randomId';
 import { browserStorage } from '@transport/storage';
 import { GameScreen } from '@ui/GameScreen';
 import { useEffect, useState } from 'react';
@@ -25,7 +26,7 @@ async function bootstrap(): Promise<SlotStore> {
     storage,
     resilience: { onRetry: (event) => reportRetry(event) },
   });
-  const store = createSlotStore({ server, storage, newRequestId: () => crypto.randomUUID() });
+  const store = createSlotStore({ server, storage, newRequestId: randomId });
   reportRetry = (event) => store.dispatch(connectionRetrying({ attempt: event.attempt, code: event.error.code }));
 
   store.dispatch(faultModeSet(faultsActive(config)));

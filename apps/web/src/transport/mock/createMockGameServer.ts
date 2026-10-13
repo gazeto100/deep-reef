@@ -1,6 +1,7 @@
 import { CryptoRng } from '@deep-reef/game-service/CryptoRng';
 import { GameService } from '@deep-reef/game-service/GameService';
 import { DEEP_REEF } from '@deep-reef/math/config/deepReef';
+import { randomId } from '../randomId';
 import { MockGameServer, type MockOptions } from './MockGameServer';
 import type { KeyValueStorage } from '../storage';
 import { PersistentSessionStore } from './PersistentSessionStore';
@@ -18,7 +19,7 @@ export async function createMockGameServer(
     definition: DEEP_REEF,
     store: await PersistentSessionStore.open(options.storage ?? null),
     rng: new CryptoRng((array) => crypto.getRandomValues(array)),
-    newId: () => crypto.randomUUID(),
+    newId: randomId,
   });
   return new MockGameServer(service, options);
 }
