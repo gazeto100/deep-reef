@@ -1,11 +1,8 @@
 import { InMemorySessionStore } from '@deep-reef/game-service/InMemorySessionStore';
 import type { SessionRecord, SessionStore, SessionTransaction } from '@deep-reef/game-service/ports';
+import type { KeyValueStorage } from '../storage';
 
-/** The part of window.localStorage this store uses (injectable for tests). */
-export interface KeyValueStorage {
-  getItem(key: string): string | null;
-  setItem(key: string, value: string): void;
-}
+export type { KeyValueStorage };
 
 interface Snapshot {
   readonly version: 1;
@@ -96,17 +93,4 @@ function isSnapshot(value: unknown): value is Snapshot {
     sessions !== null &&
     Object.values(sessions).every((b) => Number.isInteger(b) && (b as number) >= 0)
   );
-}
-
-/** window.localStorage if it can be used, otherwise null (blocked cookies, private mode). */
-export function browserStorage(): KeyValueStorage | null {
-  try {
-    const storage = window.localStorage;
-    const probe = '__deep_reef_probe__';
-    storage.setItem(probe, '1');
-    storage.removeItem(probe);
-    return storage;
-  } catch {
-    return null;
-  }
 }

@@ -1,7 +1,7 @@
 import type { GameServer } from '@deep-reef/contract/GameServer';
 import type { TransportConfig } from './config';
 import type { MockOptions } from './mock/MockGameServer';
-import type { KeyValueStorage } from './mock/PersistentSessionStore';
+import type { KeyValueStorage } from './storage';
 import { ResilientGameServer, type ResilienceOptions } from './ResilientGameServer';
 
 export interface GameServerOverrides {

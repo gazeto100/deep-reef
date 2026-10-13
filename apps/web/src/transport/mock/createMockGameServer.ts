@@ -2,7 +2,8 @@ import { CryptoRng } from '@deep-reef/game-service/CryptoRng';
 import { GameService } from '@deep-reef/game-service/GameService';
 import { DEEP_REEF } from '@deep-reef/math/config/deepReef';
 import { MockGameServer, type MockOptions } from './MockGameServer';
-import { PersistentSessionStore, type KeyValueStorage } from './PersistentSessionStore';
+import type { KeyValueStorage } from '../storage';
+import { PersistentSessionStore } from './PersistentSessionStore';
 
 /**
  * The in-browser "server" for the static demo: the real game core (the same GameService
