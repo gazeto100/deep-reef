@@ -9,21 +9,34 @@ deep-reef/
 ├─ packages/
 │  ├─ math/          @deep-reef/math          pure TypeScript: RNG, round engine, exact calculator,
 │  │                                           simulator, verify (+ CLI scripts)
-│  ├─ contract/      @deep-reef/contract      wire contract: schemas, types, error codes, OpenAPI  (phase 3a)
-│  └─ game-service/  @deep-reef/game-service  game core: sessions, wallet, idempotent spins       (phase 3a)
+│  ├─ contract/      @deep-reef/contract      wire contract: schemas, types, error codes, OpenAPI
+│  └─ game-service/  @deep-reef/game-service  game core: sessions, wallet, idempotent spins
 └─ apps/
    └─ web/           @deep-reef/web           Vite + React + Pixi client
       └─ src/
          ├─ framework/  reusable slot client: Pixi host/rendering, state, audio (game-agnostic)
          ├─ games/      per-game configuration and composition (deep-reef)
          ├─ ui/         React UI (phase 4)
-         ├─ transport/  GameServer implementations: mock, HTTP, resilient wrapper (phase 3a)
+         ├─ transport/  GameServer implementations: mock, resilient wrapper (HTTP in phase 3b)
          ├─ App.tsx     composition root: wires the layers together
          └─ main.tsx    entry point
 ```
 
 A Fastify server (`packages/server`) is planned for phase 3b. A server written in another
-language can implement the same OpenAPI contract.
+language can implement the same OpenAPI contract. The API, idempotency, atomicity and the
+multi-instance story are described in [api.md](api.md).
+
+```
+          ┌──────────────┐   GameServer interface (contract)   ┌───────────────────────┐
+ UI ───▶  │  Resilient   │ ──────────────────────────────────▶ │ MockGameServer         │──▶ GameService ──▶ SlotEngine
+          │ (timeouts,   │                                     │ (latency, faults)      │        │
+          │  retries)    │ ──── phase 3b: HttpGameServer ────▶ │ Fastify ──────────────┼──▶ GameService
+          └──────────────┘                                     └───────────────────────┘        │
+                                                                                         SessionStore (port)
+```
+
+One game core (`GameService`), several transports: ports and adapters. The browser mock and
+the Node server run the same wallet and idempotency code.
 
 Workspace packages are **internal packages without a build step**. Their `exports` point
 straight at the `.ts` sources (`"./*": "./src/*.ts"`), and Vite, Vitest and tsx compile them
@@ -64,16 +77,24 @@ These rules are enforced, not just documented:
 
 `npm run typecheck` (`tsc -b`) builds every project through the solution files:
 
-| Config                             | Covers                  | Environment                           |
-| ---------------------------------- | ----------------------- | ------------------------------------- |
-| `packages/math/tsconfig.src.json`  | math sources            | **no DOM, no Node**: the purity check |
-| `packages/math/tsconfig.node.json` | math scripts and tests  | Node                                  |
-| `apps/web/tsconfig.app.json`       | web sources             | browser (DOM lib, Vite types)         |
-| `apps/web/tsconfig.node.json`      | `vite.config.ts`        | Node                                  |
-| `tsconfig.node.json`               | root `vitest.config.ts` | Node                                  |
+| Config                                  | Covers                              | Environment                           |
+| --------------------------------------- | ----------------------------------- | ------------------------------------- |
+| `packages/math/tsconfig.src.json`       | math sources                        | **no DOM, no Node**: the purity check |
+| `packages/math/tsconfig.node.json`      | math scripts and tests              | Node                                  |
+| `packages/contract/tsconfig.*.json`     | contract sources; scripts and tests | no DOM, no Node; Node                 |
+| `packages/game-service/tsconfig.*.json` | game core sources; tests            | no DOM, no Node; Node                 |
+| `apps/web/tsconfig.app.json`            | web sources                         | browser (DOM lib, Vite types)         |
+| `apps/web/tsconfig.node.json`           | `vite.config.ts`                    | Node                                  |
+| `tsconfig.node.json`                    | root `vitest.config.ts`             | Node                                  |
 
 TypeScript is pinned to 6.0 because typed linting (typescript-eslint) does not support the
 TypeScript 7 native compiler yet.
+
+`contract` and `game-service` also compile with `erasableSyntaxOnly`: no enums, namespaces
+or parameter properties. Their sources can then run under Node's built-in type stripping
+as well as through a bundler, which keeps the production options for the phase 3b server open.
+Imported files are type-checked with the importing project's options. That is how the flag
+also caught two parameter properties in `math`, which are now explicit fields.
 
 Tests run from the root with one `vitest run`. `vitest.config.ts` lists each workspace as
 a Vitest project, and the web project reuses its `vite.config.ts`, aliases included.
