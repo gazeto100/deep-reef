@@ -13,6 +13,6 @@ const nodePackage = (name: string) => ({
 // vite/vitest config (apps/web) uses it; the packages share the defaults above.
 export default defineConfig({
   test: {
-    projects: ['apps/web', nodePackage('math'), nodePackage('contract')],
+    projects: ['apps/web', nodePackage('math'), nodePackage('contract'), nodePackage('game-service')],
   },
 });

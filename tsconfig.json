@@ -4,6 +4,7 @@
   "references": [
     { "path": "./packages/math" },
     { "path": "./packages/contract" },
+    { "path": "./packages/game-service" },
     { "path": "./apps/web" },
     { "path": "./tsconfig.node.json" }
   ]

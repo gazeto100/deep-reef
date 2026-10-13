@@ -1,0 +1,17 @@
+{
+  "name": "@deep-reef/game-service",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Deep Reef game core: sessions, wallet and idempotent spins behind storage ports. Runs in Node and in the browser.",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "dependencies": {
+    "@deep-reef/contract": "*",
+    "@deep-reef/math": "*"
+  },
+  "devDependencies": {
+    "typebox": "^1.3.37"
+  }
+}
