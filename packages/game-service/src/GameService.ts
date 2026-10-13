@@ -1,12 +1,6 @@
 import { GameServerError } from '@deep-reef/contract/errors';
 import type { GameServer, RequestOptions } from '@deep-reef/contract/GameServer';
-import type {
-  CreateSessionResponse,
-  GameConfig,
-  SessionResponse,
-  SpinRequest,
-  SpinResponse,
-} from '@deep-reef/contract/schemas';
+import type { Session, GameConfig, SpinRequest, SpinResponse } from '@deep-reef/contract/schemas';
 import { SlotEngine } from '@deep-reef/math/engine/SlotEngine';
 import type { GameDefinition } from '@deep-reef/math/engine/types';
 import type { Rng } from '@deep-reef/math/rng/Rng';
@@ -56,16 +50,16 @@ export class GameService<S extends string> implements GameServer {
     }
   }
 
-  async createSession(_options?: RequestOptions): Promise<CreateSessionResponse> {
+  async createSession(_options?: RequestOptions): Promise<Session> {
     const sessionId = this.newId();
     await this.store.create({ id: sessionId, balance: this.startingBalance });
     return { sessionId, balance: this.startingBalance, config: this.config };
   }
 
-  async getSession(sessionId: string, _options?: RequestOptions): Promise<SessionResponse> {
+  async getSession(sessionId: string, _options?: RequestOptions): Promise<Session> {
     const session = await this.store.find(sessionId);
     if (!session) throw new GameServerError('SESSION_NOT_FOUND', `no session ${sessionId}`);
-    return { sessionId: session.id, balance: session.balance };
+    return { sessionId: session.id, balance: session.balance, config: this.config };
   }
 
   /**

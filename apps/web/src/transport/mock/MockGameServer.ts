@@ -1,6 +1,6 @@
 import { GameServerError } from '@deep-reef/contract/errors';
 import type { AbortSignalLike, GameServer, RequestOptions } from '@deep-reef/contract/GameServer';
-import type { CreateSessionResponse, SessionResponse, SpinRequest, SpinResponse } from '@deep-reef/contract/schemas';
+import type { Session, SpinRequest, SpinResponse } from '@deep-reef/contract/schemas';
 import { sleep, throwIfAborted, waitForAbort } from '../abort';
 
 /**
@@ -49,11 +49,11 @@ export class MockGameServer implements GameServer {
     this.chooseFault = options.chooseFault ?? ((): MockFault | null => this.randomFault(rates));
   }
 
-  createSession(options?: RequestOptions): Promise<CreateSessionResponse> {
+  createSession(options?: RequestOptions): Promise<Session> {
     return this.call('createSession', options?.signal, () => this.backend.createSession());
   }
 
-  getSession(sessionId: string, options?: RequestOptions): Promise<SessionResponse> {
+  getSession(sessionId: string, options?: RequestOptions): Promise<Session> {
     return this.call('getSession', options?.signal, () => this.backend.getSession(sessionId));
   }
 

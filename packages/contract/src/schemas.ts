@@ -81,21 +81,17 @@ export const GameConfig = Type.Object(
 
 // ---------------------------------------------------------------- sessions
 
-export const CreateSessionResponse = Type.Object(
+/**
+ * A session as every endpoint returns it. The config is included each time, so a client
+ * that resumes a stored sessionId (GET) has everything it needs, as after a create.
+ */
+export const Session = Type.Object(
   {
     sessionId: Uuid,
     balance: Credits,
     config: GameConfig,
   },
-  { ...closed, title: 'CreateSessionResponse' },
-);
-
-export const SessionResponse = Type.Object(
-  {
-    sessionId: Uuid,
-    balance: Credits,
-  },
-  { ...closed, title: 'SessionResponse' },
+  { ...closed, title: 'Session' },
 );
 
 // ---------------------------------------------------------------- spins
@@ -216,8 +212,7 @@ export type Position = Static<typeof Position>;
 export type PayEntry = Static<typeof PayEntry>;
 export type SymbolPays = Static<typeof SymbolPays>;
 export type GameConfig = Static<typeof GameConfig>;
-export type CreateSessionResponse = Static<typeof CreateSessionResponse>;
-export type SessionResponse = Static<typeof SessionResponse>;
+export type Session = Static<typeof Session>;
 export type SpinRequest = Static<typeof SpinRequest>;
 export type LineWin = Static<typeof LineWin>;
 export type ScatterWin = Static<typeof ScatterWin>;
@@ -235,8 +230,7 @@ export const NAMED_SCHEMAS: Readonly<Record<string, TSchema>> = {
   PayEntry,
   SymbolPays,
   GameConfig,
-  CreateSessionResponse,
-  SessionResponse,
+  Session,
   SpinRequest,
   LineWin,
   ScatterWin,
