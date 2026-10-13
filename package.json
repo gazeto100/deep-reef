@@ -16,9 +16,9 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "npm run dev -w @deep-reef/web",
+    "dev": "npm run dev -w @deep-reef/web --",
     "build": "tsc -b && npm run build -w @deep-reef/web",
-    "preview": "npm run preview -w @deep-reef/web",
+    "preview": "npm run preview -w @deep-reef/web --",
     "typecheck": "tsc -b",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
