@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   check:
-    name: Typecheck, lint, test, verify, build
+    name: Typecheck, lint, test, API lint, verify, build
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -35,6 +35,9 @@ jobs:
 
       - name: Unit tests
         run: npm test
+
+      - name: Lint OpenAPI spec
+        run: npm run api:lint
 
       - name: Verify math invariants
         run: npm run math:verify

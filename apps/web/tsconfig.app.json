@@ -1,0 +1,18 @@
+{
+  // Browser code of the web client.
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "types": ["vite/client"],
+    "tsBuildInfoFile": "../../node_modules/.tmp/web.app.tsbuildinfo",
+    // Client layer aliases. Mirrored in vite.config.ts and enforced in eslint.config.js.
+    "paths": {
+      "@framework/*": ["./src/framework/*"],
+      "@games/*": ["./src/games/*"],
+      "@ui/*": ["./src/ui/*"],
+      "@transport/*": ["./src/transport/*"]
+    }
+  },
+  "include": ["src"]
+}

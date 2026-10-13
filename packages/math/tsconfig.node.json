@@ -1,0 +1,10 @@
+{
+  // Node-side tooling for the math package: CLI scripts and tests.
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": ["node"],
+    "tsBuildInfoFile": "../../node_modules/.tmp/math.node.tsbuildinfo"
+  },
+  "include": ["scripts", "src/**/*.test.ts"]
+}

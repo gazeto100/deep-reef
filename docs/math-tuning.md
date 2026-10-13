@@ -1,8 +1,8 @@
 # Deep Reef: math tuning log
 
 The pays and reel strips were tuned with the **exact full-cycle calculator**
-(`src/math/analysis/exact.ts`), not with the simulator. Each iteration is saved in
-`scripts/tuning/candidates.ts` and can be re-run:
+(`packages/math/src/analysis/exact.ts`), not with the simulator. Each iteration is saved in
+`packages/math/scripts/tuning/candidates.ts` and can be re-run:
 
 ```bash
 npm run math:tune              # all iterations
@@ -11,7 +11,7 @@ npm run math:tune -- v8 --detail
 
 Strips are generated from symbol counts by a seeded shuffle that enforces the layout
 rules: no identical neighbours, and scatters at least 3 apart. The chosen candidate is then
-**frozen as literal data** in `src/math/config/deepReef.ts` with `--write`.
+**frozen as literal data** in `packages/math/src/config/deepReef.ts` with `--write`.
 
 ## Phase 1: base targets (v1–v8)
 

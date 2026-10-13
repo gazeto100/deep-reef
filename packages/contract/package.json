@@ -1,0 +1,22 @@
+{
+  "name": "@deep-reef/contract",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Deep Reef game server contract: request/response schemas, error codes, the GameServer interface and the OpenAPI specification.",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts",
+    "./openapi.yaml": "./openapi.yaml"
+  },
+  "scripts": {
+    "openapi": "tsx scripts/build-openapi.ts",
+    "openapi:lint": "redocly lint openapi.yaml"
+  },
+  "devDependencies": {
+    "@redocly/cli": "^2.63.0",
+    "yaml": "^2.9.1"
+  },
+  "dependencies": {
+    "typebox": "^1.3.37"
+  }
+}

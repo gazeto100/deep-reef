@@ -1,0 +1,14 @@
+{
+  // Runs in Node and in the browser: no DOM lib and no ambient types.
+  // erasableSyntaxOnly: no enums, namespaces or parameter properties, so the sources can
+  // also run under Node's built-in type stripping (see phase 3b).
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": [],
+    "erasableSyntaxOnly": true,
+    "tsBuildInfoFile": "../../node_modules/.tmp/contract.src.tsbuildinfo"
+  },
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts"]
+}
