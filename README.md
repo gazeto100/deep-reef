@@ -5,6 +5,8 @@
 A 5x3, 20-line video slot with wild, scatter and free spins. It is a portfolio project built with TypeScript, PixiJS v8, React, Redux Toolkit and GSAP.
 
 > **Demo only. It uses virtual credits, not real money.**
+>
+> **Play it: [deepreef.marketpage.bg](https://deepreef.marketpage.bg/)** · with network faults: [?faults=1](https://deepreef.marketpage.bg/?faults=1)
 
 ## Playing the demo
 
@@ -45,17 +47,17 @@ in-browser mock; it has no effect on a real server.
 
 Work in progress. Each development phase lives on its own branch and is merged into `main` with `--no-ff`.
 
-| Phase | Scope                                                                                               | State                |
-| ----- | --------------------------------------------------------------------------------------------------- | -------------------- |
-| 0     | Repository setup                                                                                    | done                 |
-| 1     | Math engine, exact RTP calculator, simulator, verify                                                | done                 |
-| 2     | Vite + React, project structure and boundaries                                                      | done                 |
-| 3a    | npm workspaces, server contract + OpenAPI, game core (wallet, idempotency), mock + resilient client | done                 |
-| 4     | Playable version online: Redux, React controls, Pixi reels, cPanel build                            | ready for deployment |
-| 3b    | Fastify server, conformance tests, Docker, rate limiting, CORS                                      |                      |
-| 5     | Visuals: symbol atlas, loading screen, win presentation                                             |                      |
-| 6     | Sound (Howler.js) and GSAP animations                                                               |                      |
-| 7–8   | Test suite completion, final README                                                                 |                      |
+| Phase | Scope                                                                                               | State |
+| ----- | --------------------------------------------------------------------------------------------------- | ----- |
+| 0     | Repository setup                                                                                    | done  |
+| 1     | Math engine, exact RTP calculator, simulator, verify                                                | done  |
+| 2     | Vite + React, project structure and boundaries                                                      | done  |
+| 3a    | npm workspaces, server contract + OpenAPI, game core (wallet, idempotency), mock + resilient client | done  |
+| 4     | Playable version online: Redux, React controls, Pixi reels, cPanel build                            | done  |
+| 3b    | Fastify server, conformance tests, Docker, rate limiting, CORS                                      |       |
+| 5     | Visuals: symbol atlas, loading screen, win presentation                                             |       |
+| 6     | Sound (Howler.js) and GSAP animations                                                               |       |
+| 7–8   | Test suite completion, final README                                                                 |       |
 
 ## Scripts
 
