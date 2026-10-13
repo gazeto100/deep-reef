@@ -14,6 +14,9 @@ export interface ReelOptions {
 
 type ReelState = 'idle' | 'spinning' | 'stopping';
 
+/** Opacity of non-winning symbols while wins are shown. */
+const DIMMED_ALPHA = 0.3;
+
 /**
  * One reel: rows + 1 sprites scrolling down inside a mask. When a sprite leaves the
  * bottom it wraps to the top with the next symbol: a filler while spinning, the result
@@ -64,7 +67,15 @@ export class Reel extends Container {
     this.layoutSprites();
   }
 
+  /** Dims every visible row except those flagged true; null restores all rows. */
+  dim(keepRows: readonly boolean[] | null): void {
+    this.sprites.forEach((sprite, i) => {
+      sprite.alpha = keepRows === null || i === 0 || keepRows[i - 1] ? 1 : DIMMED_ALPHA;
+    });
+  }
+
   start(speedPxPerMs: number): void {
+    this.dim(null);
     this.speed = speedPxPerMs;
     this.queue.length = 0;
     this.target = null;

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff6b7d"/>
+      <stop offset="1" stop-color="#a3122a"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9fb6c9"/>
+      <stop offset="1" stop-color="#5d7891"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="44" fill="url(#bg)"/>
+  <path d="M24 96 C24 40 40 22 72 22 L184 22 C216 22 232 40 232 96 C190 70 66 70 24 96 Z" fill="#fff" opacity=".14"/>
+  <circle cx="206" cy="58" r="7" fill="#fff" opacity=".35"/>
+  <circle cx="190" cy="40" r="4" fill="#fff" opacity=".35"/>
+  <g transform="translate(128 132) rotate(-14) scale(1.06) translate(-134 -128)">
+  <g stroke="#0b1d2a" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+    <!-- tail -->
+    <path d="M196 128 L236 84 L226 132 L238 178 Z" fill="url(#body)"/>
+    <!-- dorsal fin -->
+    <path d="M118 92 L146 48 L156 98 Z" fill="url(#body)"/>
+    <!-- body -->
+    <path d="M30 132 C52 100 104 88 150 96 C176 100 196 114 204 128 C196 144 176 158 150 162 C104 170 54 162 30 132 Z" fill="url(#body)"/>
+    <!-- belly -->
+    <path d="M42 140 C70 156 120 162 168 150 C150 166 92 170 42 140 Z" fill="#eef4f8" stroke-width="5"/>
+    <!-- pectoral fin -->
+    <path d="M112 150 L98 190 L136 156 Z" fill="url(#body)"/>
+  </g>
+  <!-- gills -->
+  <g stroke="#0b1d2a" stroke-width="5" stroke-linecap="round" fill="none">
+    <path d="M90 118 Q86 128 90 138"/>
+    <path d="M102 116 Q98 128 102 140"/>
+  </g>
+  <!-- eye and grin -->
+  <circle cx="62" cy="122" r="10" fill="#fff" stroke="#0b1d2a" stroke-width="5"/>
+  <circle cx="60" cy="122" r="5" fill="#0b1d2a"/>
+  <path d="M40 142 Q60 152 82 144" fill="none" stroke="#0b1d2a" stroke-width="5" stroke-linecap="round"/>
+  <path d="M50 146 L54 140 L58 148 L62 141 L66 149 L70 142 L74 147" fill="#fff" stroke="#0b1d2a" stroke-width="2" stroke-linejoin="round"/>
+  </g>
+  <rect x="8" y="8" width="240" height="240" rx="44" fill="none" stroke="#ffe3e7" stroke-opacity=".9" stroke-width="6"/>
+</svg>

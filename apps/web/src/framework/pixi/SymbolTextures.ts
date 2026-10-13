@@ -1,6 +1,6 @@
-import { Container, Graphics, Text, type Renderer, type Texture } from 'pixi.js';
+import { Assets, Container, Graphics, Text, type Renderer, type Texture } from 'pixi.js';
 
-/** How one symbol looks while there is no artwork yet (phase 5 replaces it with an atlas). */
+/** Fallback look of a symbol (labelled tile), used when its artwork is missing or fails to load. */
 export interface SymbolStyle {
   readonly label: string;
   readonly fill: number;
@@ -50,4 +50,57 @@ export function createSymbolTextures(
     tile.destroy({ children: true });
   }
   return textures;
+}
+
+/** Artwork per symbol (image URLs, e.g. SVG), plus the labelled-tile fallback. */
+export interface SymbolArt {
+  readonly images: Readonly<Partial<Record<string, string>>>;
+  readonly fallback: SymbolTheme;
+}
+
+/** Rasterisation scale for vector artwork: sharp on high-density phones without wasting memory. */
+const ART_RESOLUTION = 1.5;
+
+/**
+ * Loads each symbol's artwork through Pixi Assets (SVG is rasterised once at load time).
+ * A symbol without artwork, or whose image fails to load, gets a generated labelled tile,
+ * so a missing file degrades the look but never breaks the game.
+ */
+export async function loadSymbolTextures(
+  renderer: Renderer,
+  symbols: readonly string[],
+  art: SymbolArt,
+  size: number,
+): Promise<{ textures: Map<string, Texture>; release: () => void }> {
+  const textures = new Map<string, Texture>();
+  const loaded: string[] = [];
+  const missing: string[] = [];
+
+  await Promise.all(
+    symbols.map(async (symbol) => {
+      const src = art.images[symbol];
+      if (!src) {
+        missing.push(symbol);
+        return;
+      }
+      try {
+        textures.set(symbol, await Assets.load<Texture>({ src, data: { resolution: ART_RESOLUTION } }));
+        loaded.push(src);
+      } catch (error) {
+        console.warn(`symbol art for ${symbol} failed to load, using a fallback tile`, error);
+        missing.push(symbol);
+      }
+    }),
+  );
+
+  const generated = createSymbolTextures(renderer, missing, art.fallback, size);
+  for (const [symbol, texture] of generated) textures.set(symbol, texture);
+
+  return {
+    textures,
+    release: () => {
+      for (const texture of generated.values()) texture.destroy(true);
+      void Assets.unload(loaded);
+    },
+  };
 }

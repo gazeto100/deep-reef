@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe680"/>
+      <stop offset="1" stop-color="#e09a00"/>
+    </linearGradient>
+    <linearGradient id="shell" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd6e0"/>
+      <stop offset="1" stop-color="#f78fb3"/>
+    </linearGradient>
+    <radialGradient id="pearl" cx=".35" cy=".3" r=".75">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".55" stop-color="#eae4ff"/>
+      <stop offset="1" stop-color="#a99bd6"/>
+    </radialGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="44" fill="url(#bg)"/>
+  <path d="M24 96 C24 40 40 22 72 22 L184 22 C216 22 232 40 232 96 C190 70 66 70 24 96 Z" fill="#fff" opacity=".2"/>
+  <!-- sparkles -->
+  <g fill="#fff">
+    <path d="M48 52 L52 64 L64 68 L52 72 L48 84 L44 72 L32 68 L44 64 Z"/>
+    <path d="M206 40 L209 49 L218 52 L209 55 L206 64 L203 55 L194 52 L203 49 Z"/>
+  </g>
+  <g stroke="#3a2400" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+    <!-- open clam: upper shell behind, lower shell in front -->
+    <path d="M44 120 C44 62 212 62 212 120 C176 108 80 108 44 120 Z" fill="url(#shell)"/>
+    <circle cx="128" cy="128" r="40" fill="url(#pearl)"/>
+    <path d="M36 128 C70 140 186 140 220 128 C214 176 176 196 128 196 C80 196 42 176 36 128 Z" fill="url(#shell)"/>
+  </g>
+  <!-- shell ribs -->
+  <g fill="none" stroke="#c2255c" stroke-width="4" stroke-linecap="round" opacity=".7">
+    <path d="M128 150 L128 188 M100 148 L92 184 M156 148 L164 184 M74 142 L60 172 M182 142 L196 172"/>
+  </g>
+  <!-- WILD banner -->
+  <rect x="58" y="196" width="140" height="38" rx="12" fill="#3a2400" stroke="#fff1b8" stroke-width="4"/>
+  <text x="128" y="224" text-anchor="middle" font-family="Arial Black, Impact, Arial, sans-serif" font-weight="900" font-size="28" fill="#ffd43b" letter-spacing="2">WILD</text>
+  <rect x="8" y="8" width="240" height="240" rx="44" fill="none" stroke="#fff6cc" stroke-opacity=".95" stroke-width="6"/>
+</svg>

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d08bff"/>
+      <stop offset="1" stop-color="#5a189a"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".6" r=".5">
+      <stop offset="0" stop-color="#fff3bf"/>
+      <stop offset="1" stop-color="#fff3bf" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b5733a"/>
+      <stop offset="1" stop-color="#6b3c16"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="44" fill="url(#bg)"/>
+  <path d="M24 96 C24 40 40 22 72 22 L184 22 C216 22 232 40 232 96 C190 70 66 70 24 96 Z" fill="#fff" opacity=".14"/>
+  <ellipse cx="128" cy="96" rx="96" ry="64" fill="url(#glow)"/>
+  <g stroke="#1f0b2e" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+    <!-- open lid -->
+    <path d="M52 92 L72 44 L184 44 L204 92 Z" fill="url(#wood)"/>
+    <!-- coins spilling -->
+    <g fill="#ffd43b">
+      <ellipse cx="96" cy="96" rx="18" ry="10"/>
+      <ellipse cx="128" cy="88" rx="18" ry="10"/>
+      <ellipse cx="160" cy="96" rx="18" ry="10"/>
+    </g>
+    <!-- chest body -->
+    <rect x="44" y="100" width="168" height="92" rx="10" fill="url(#wood)"/>
+    <!-- gold bands and lock -->
+    <rect x="44" y="100" width="168" height="18" fill="#f2b705"/>
+    <rect x="72" y="100" width="16" height="92" fill="#f2b705"/>
+    <rect x="168" y="100" width="16" height="92" fill="#f2b705"/>
+    <rect x="114" y="118" width="28" height="32" rx="6" fill="#f2b705"/>
+  </g>
+  <circle cx="128" cy="132" r="5" fill="#1f0b2e"/>
+  <!-- sparkle -->
+  <path d="M206 40 L209 49 L218 52 L209 55 L206 64 L203 55 L194 52 L203 49 Z" fill="#fff"/>
+  <!-- BONUS banner -->
+  <rect x="50" y="196" width="156" height="38" rx="12" fill="#1f0b2e" stroke="#e5c7ff" stroke-width="4"/>
+  <text x="128" y="224" text-anchor="middle" font-family="Arial Black, Impact, Arial, sans-serif" font-weight="900" font-size="26" fill="#ffd43b" letter-spacing="2">BONUS</text>
+  <rect x="8" y="8" width="240" height="240" rx="44" fill="none" stroke="#f0dcff" stroke-opacity=".95" stroke-width="6"/>
+</svg>

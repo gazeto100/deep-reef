@@ -50,6 +50,8 @@ export function PixiCanvas({ options, onReady, onEvent, className }: PixiCanvasP
           app.renderer.resize(Math.max(1, container.clientWidth), Math.max(1, container.clientHeight));
         });
         observer.observe(container);
+        // Development only: the hook the PixiJS DevTools extension looks for.
+        if (import.meta.env.DEV) (globalThis as { __PIXI_APP__?: unknown }).__PIXI_APP__ = app;
         const result = handleReady(app);
         if (typeof result === 'function') cleanup = result;
       })

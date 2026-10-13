@@ -1,9 +1,19 @@
-import type { SymbolTheme } from '@framework/pixi/SymbolTextures';
+import type { SymbolArt, SymbolTheme } from '@framework/pixi/SymbolTextures';
+import a from './symbols/a.svg';
+import j from './symbols/j.svg';
+import k from './symbols/k.svg';
+import octopus from './symbols/octopus.svg';
+import puffer from './symbols/puffer.svg';
+import q from './symbols/q.svg';
+import scatter from './symbols/scatter.svg';
+import seahorse from './symbols/seahorse.svg';
+import shark from './symbols/shark.svg';
+import turtle from './symbols/turtle.svg';
+import wild from './symbols/wild.svg';
 
 /**
- * Placeholder look of the Deep Reef symbols: coloured tiles with labels, rendered to
- * textures at startup. Phase 5 replaces this with SVG artwork in a texture atlas.
- * Colours follow the pay rank: warm and saturated for premiums, cool for low symbols.
+ * Fallback look of the Deep Reef symbols (labelled tiles), used only if artwork fails to
+ * load. Colours match the artwork: warm for premiums, cool for low symbols.
  */
 export const DEEP_REEF_THEME: SymbolTheme = {
   WILD: { label: 'WILD', fill: 0xf4b400, text: 0x3a2400, border: 0xfff1b8 },
@@ -18,3 +28,25 @@ export const DEEP_REEF_THEME: SymbolTheme = {
   Q: { label: 'Q', fill: 0x14334a, text: 0xffd3f0, border: 0x3d7aa3 },
   J: { label: 'J', fill: 0x14334a, text: 0xfff3a3, border: 0x3d7aa3 },
 };
+
+/**
+ * Symbol artwork: hand-made SVG tiles in one style (gradient tile, light rim, flat
+ * creatures with dark outlines). Letters are drawn as paths, not text, so they look the
+ * same on every device. Vite turns each import into a hashed URL (or an inline data URL
+ * for small files). The paytable screen shows the same images.
+ */
+export const DEEP_REEF_SYMBOL_IMAGES: Readonly<Record<string, string>> = {
+  WILD: wild,
+  SCATTER: scatter,
+  SHARK: shark,
+  OCTOPUS: octopus,
+  TURTLE: turtle,
+  SEAHORSE: seahorse,
+  PUFFER: puffer,
+  A: a,
+  K: k,
+  Q: q,
+  J: j,
+};
+
+export const DEEP_REEF_ART: SymbolArt = { images: DEEP_REEF_SYMBOL_IMAGES, fallback: DEEP_REEF_THEME };

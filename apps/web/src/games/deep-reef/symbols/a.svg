@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1f5578"/>
+      <stop offset="1" stop-color="#0a2236"/>
+    </linearGradient>
+    <linearGradient id="ink" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#bfe9ff"/>
+      <stop offset="1" stop-color="#1c7ed6"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="44" fill="url(#bg)"/>
+  <path d="M24 96 C24 40 40 22 72 22 L184 22 C216 22 232 40 232 96 C190 70 66 70 24 96 Z" fill="#fff" opacity=".08"/>
+  <path d="M8 206 C40 192 64 220 96 206 C128 192 152 220 184 206 C210 195 230 205 248 200 L248 204 C248 228 228 248 204 248 L52 248 C28 248 8 228 8 204 Z" fill="#1c7ed6" opacity=".35"/>
+  <g fill="#fff" opacity=".3">
+    <circle cx="214" cy="160" r="7"/>
+    <circle cx="226" cy="138" r="4"/>
+    <circle cx="36" cy="72" r="5"/>
+  </g>
+  <g fill="url(#ink)" stroke="#06121c" stroke-width="12" stroke-linejoin="round" paint-order="stroke">
+    <path fill-rule="evenodd" d="M128 40 L198 196 L214 196 L214 214 L154 214 L154 196 L166 196 L156 172 L100 172 L90 196 L102 196 L102 214 L42 214 L42 196 L58 196 Z M128 92 L108 146 L148 146 Z"/>
+  </g>
+  <rect x="8" y="8" width="240" height="240" rx="44" fill="none" stroke="#7fb8dc" stroke-opacity=".9" stroke-width="6"/>
+</svg>

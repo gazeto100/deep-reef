@@ -2,7 +2,7 @@ import { mountSlotScene } from '@framework/pixi/PresentationController';
 import { PixiCanvas } from '@framework/react/PixiCanvas';
 import { useSlotDispatch, useSlotSelector, useSlotStore } from '@framework/state/hooks';
 import { primaryAction, startSession } from '@framework/state/thunks';
-import { DEEP_REEF_THEME } from '@games/deep-reef/theme';
+import { DEEP_REEF_ART } from '@games/deep-reef/theme';
 import { useEffect } from 'react';
 import { Hud } from './Hud';
 import { errorMessage, T } from './strings';
@@ -42,7 +42,7 @@ export function GameScreen() {
           <PixiCanvas
             className="pixi-stage"
             options={{ backgroundAlpha: 0, antialias: true, autoDensity: true, resolution: window.devicePixelRatio }}
-            onReady={(app) => mountSlotScene(app, store, DEEP_REEF_THEME)}
+            onReady={(app) => mountSlotScene(app, store, DEEP_REEF_ART)}
           />
         ) : (
           <div className="stage-message" role="status">
