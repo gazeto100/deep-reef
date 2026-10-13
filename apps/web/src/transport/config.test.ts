@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FLAKY_NETWORK, readTransportConfig } from './config';
+import { applyUrlOverrides, faultsActive, FLAKY_NETWORK, readTransportConfig } from './config';
 import { createGameServer } from './createGameServer';
 
 describe('readTransportConfig', () => {
@@ -42,5 +42,26 @@ describe('createGameServer', () => {
     await expect(
       createGameServer(readTransportConfig({ VITE_GAME_SERVER: 'http', VITE_API_URL: 'http://x' })),
     ).rejects.toThrow('phase 3b');
+  });
+});
+
+describe('applyUrlOverrides', () => {
+  const base = readTransportConfig({});
+
+  it('turns the flaky preset on with ?faults=1 and off with ?faults=0', () => {
+    const on = applyUrlOverrides(base, '?faults=1');
+    expect(on.mockFaults).toBe(FLAKY_NETWORK);
+    expect(faultsActive(on)).toBe(true);
+    expect(faultsActive(applyUrlOverrides(on, '?faults=0'))).toBe(false);
+  });
+
+  it('leaves the defaults alone (no faults in the public build)', () => {
+    expect(faultsActive(applyUrlOverrides(base, ''))).toBe(false);
+    expect(faultsActive(applyUrlOverrides(base, '?faults=yes'))).toBe(false);
+  });
+
+  it('never applies to the HTTP transport', () => {
+    const http = readTransportConfig({ VITE_GAME_SERVER: 'http', VITE_API_URL: 'http://x' });
+    expect(applyUrlOverrides(http, '?faults=1')).toBe(http);
   });
 });
