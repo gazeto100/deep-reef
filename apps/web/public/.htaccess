@@ -2,11 +2,15 @@
 
 Options -Indexes
 
-# Uncomment once the subdomain has an SSL certificate (cPanel > SSL/TLS Status > AutoSSL),
-# otherwise the redirect would make the site unreachable.
-# RewriteEngine On
-# RewriteCond %{HTTPS} !=on
-# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# HTTP -> HTTPS. Needs a valid certificate (cPanel > SSL/TLS Status > AutoSSL); on a host
+# without one, comment this block out. /.well-known/ is left alone so that certificate
+# validation and renewal keep working.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{REQUEST_URI} !^/\.well-known/
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
 
 <IfModule mod_headers.c>
   # Files in assets/ have a content hash in their name and never change: cache for a year.

@@ -3,14 +3,17 @@
 The public demo is a static site: `index.html`, an `assets/` folder and `.htaccess`. No
 Node.js is needed on the server, because the game core runs in the browser (in-browser mock).
 
-## 1. Build
+## 1. Build and package
 
 ```bash
 npm ci
-npm run build
+npm run package:web
 ```
 
-The output is `apps/web/dist/`:
+This builds the site and writes `release/deep-reef-web-<commit>.zip`: paths use `/`,
+directories are 755 and files 644, and the content is deterministic. Upload that file as is.
+
+The build output it packs is `apps/web/dist/`:
 
 ```
 dist/
@@ -22,8 +25,9 @@ dist/
 The build uses relative URLs (`base: './'`), so it works from a subdomain's root or from any
 sub-folder, unchanged.
 
-To upload it as one file, zip the **contents** of `dist/` (not the folder itself), so that
-`index.html` sits at the top level of the archive. `.htaccess` must be included.
+The archive holds the **contents** of `dist/` (`index.html` at the top level, `.htaccess`
+included). Avoid zipping it by hand on Windows: PowerShell 5's `Compress-Archive` writes
+backslashes in paths, which Linux extractors turn into broken file names.
 
 ## 2. Create the subdomain
 
@@ -43,8 +47,9 @@ To upload it as one file, zip the **contents** of `dist/` (not the folder itself
 ## 4. HTTPS
 
 1. cPanel → **SSL/TLS Status** → select the subdomain → **Run AutoSSL**.
-2. Once the certificate shows as valid, open `.htaccess` in File Manager (Edit) and uncomment
-   the three `Rewrite…` lines under the HTTPS comment, so HTTP redirects to HTTPS.
+2. `.htaccess` redirects HTTP to HTTPS, except `/.well-known/`, which certificate validation
+   uses. On a host **without** a certificate, comment out the `<IfModule mod_rewrite.c>`
+   block, or the site becomes unreachable.
 
 The game also works over plain HTTP (it has a fallback for `crypto.randomUUID`), but HTTPS is
 recommended.
