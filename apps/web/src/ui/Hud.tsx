@@ -2,6 +2,7 @@ import { selectBet, selectDisplayedWin, selectPrimaryAction } from '@framework/s
 import { betDecreased, betIncreased, turboToggled } from '@framework/state/slices';
 import { useSlotDispatch, useSlotSelector } from '@framework/state/hooks';
 import { primaryAction, resetSession } from '@framework/state/thunks';
+import { SpinIcon, StopIcon } from './icons';
 import { credits, errorMessage, T } from './strings';
 
 /** Stable fallback: a fresh [] per call would make the selector re-render on every store update. */
@@ -82,9 +83,12 @@ export function Hud() {
           className={`spin${action === 'hurry' ? ' is-stop' : ''}`}
           disabled={action === 'disabled'}
           onClick={() => void dispatch(primaryAction())}
+          aria-label={action === 'hurry' ? T.stop : T.spin}
+          title={`${action === 'hurry' ? T.stop : T.spin} (${T.spaceKey})`}
           data-testid="spin"
+          data-action={action}
         >
-          {action === 'hurry' ? T.stop : T.spin}
+          {action === 'hurry' ? <StopIcon /> : <SpinIcon />}
         </button>
 
         <div className="hud-side">

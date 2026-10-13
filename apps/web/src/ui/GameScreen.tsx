@@ -3,8 +3,10 @@ import { PixiCanvas } from '@framework/react/PixiCanvas';
 import { useSlotDispatch, useSlotSelector, useSlotStore } from '@framework/state/hooks';
 import { primaryAction, startSession } from '@framework/state/thunks';
 import { DEEP_REEF_ART } from '@games/deep-reef/theme';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Hud } from './Hud';
+import { InfoIcon } from './icons';
+import { Paytable } from './Paytable';
 import { errorMessage, T } from './strings';
 
 export function GameScreen() {
@@ -12,18 +14,20 @@ export function GameScreen() {
   const dispatch = useSlotDispatch();
   const session = useSlotSelector((s) => s.session);
   const faultsActive = useSlotSelector((s) => s.settings.faultsActive);
+  const [infoOpen, setInfoOpen] = useState(false);
+  const closeInfo = useCallback(() => setInfoOpen(false), []);
 
   // Space bar = main button (spin / stop), except while a control has keyboard focus.
   useEffect(() => {
     const onKey = (event: KeyboardEvent): void => {
-      if (event.code !== 'Space' || event.repeat) return;
+      if (event.code !== 'Space' || event.repeat || infoOpen) return;
       if (event.target instanceof HTMLButtonElement || event.target instanceof HTMLInputElement) return;
       event.preventDefault();
       void dispatch(primaryAction());
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [dispatch]);
+  }, [dispatch, infoOpen]);
 
   return (
     <div className="game">
@@ -35,6 +39,17 @@ export function GameScreen() {
             {T.faults}
           </span>
         )}
+        <button
+          type="button"
+          className="icon-button info-button"
+          aria-label={T.infoButton}
+          title={T.infoButton}
+          disabled={session.status !== 'ready'}
+          onClick={() => setInfoOpen(true)}
+          data-testid="info"
+        >
+          <InfoIcon />
+        </button>
       </header>
 
       <main className="game-stage">
@@ -61,6 +76,7 @@ export function GameScreen() {
       </main>
 
       <Hud />
+      {infoOpen && <Paytable onClose={closeInfo} />}
     </div>
   );
 }
