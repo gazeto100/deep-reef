@@ -19,6 +19,8 @@ body,
 #root {
   height: 100%;
   margin: 0;
+  /* A full-screen game: nothing scrolls at page level (dialogs scroll inside themselves). */
+  overflow: hidden;
 }
 
 body {
@@ -92,6 +94,188 @@ button:disabled {
   color: var(--danger);
 }
 
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.icon-button svg {
+  width: 22px;
+  height: 22px;
+}
+
+.info-button {
+  margin-left: auto;
+}
+
+/* ---- paytable dialog ---- */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  background: rgba(1, 8, 15, 0.72);
+}
+
+.paytable {
+  width: min(760px, 100%);
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 18px 18px;
+  border-radius: 16px;
+  border: 1px solid var(--panel-edge);
+  background: #071a2b;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.paytable-header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0 10px;
+  background: #071a2b;
+  border-bottom: 1px solid var(--panel-edge);
+}
+
+.paytable h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.paytable h3 {
+  margin: 18px 0 6px;
+  font-size: 15px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.paytable p {
+  margin: 4px 0;
+  line-height: 1.45;
+}
+
+.paytable .muted {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.pay-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.pay-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 12px;
+  background: var(--panel);
+}
+
+.pay-card ul,
+.scatter-pays {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.pay-card li,
+.scatter-pays li {
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.count {
+  display: inline-block;
+  min-width: 2.2em;
+  color: var(--muted);
+}
+
+.pay-symbol {
+  flex: none;
+  width: 64px;
+  height: 64px;
+}
+
+.special-row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-top: 12px;
+}
+
+.special-row h3 {
+  margin-top: 0;
+}
+
+.scatter-pays {
+  display: flex;
+  gap: 16px;
+}
+
+.lines-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.payline {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.payline svg {
+  width: 100%;
+  height: auto;
+}
+
+.payline rect.off {
+  fill: #12324c;
+}
+
+.payline rect.on {
+  fill: #f4b400;
+}
+
+.payline polyline {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.rules {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 1.5;
+}
+
+.rtp {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--panel-edge);
+}
+
 .game-stage {
   flex: 1;
   min-height: 0;
@@ -101,6 +285,11 @@ button:disabled {
 .pixi-stage {
   position: absolute;
   inset: 0;
+}
+
+/* Inline canvases leave a text-descender gap below them (4px of overflow). */
+.pixi-stage canvas {
+  display: block;
 }
 
 .hud {
@@ -181,6 +370,25 @@ button:disabled {
   box-shadow: 0 4px 20px rgba(244, 180, 0, 0.35);
 }
 
+.spin {
+  display: grid;
+  place-items: center;
+}
+
+.spin svg {
+  width: 52%;
+  height: 52%;
+}
+
+.spin.is-stop svg {
+  width: 40%;
+  height: 40%;
+}
+
+.spin:not(:disabled):active {
+  transform: scale(0.96);
+}
+
 .spin.is-stop {
   background: radial-gradient(circle at 35% 30%, #ff8fa6, var(--danger) 60%, #8f1c33);
   color: #fff;
@@ -210,6 +418,25 @@ button:disabled {
 
 /* Narrow portrait phones: compact controls so bet, spin and turbo fit on one row. */
 @media (max-width: 480px) {
+  .pay-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .pay-card {
+    gap: 6px;
+    padding: 6px;
+  }
+
+  .pay-card .pay-symbol {
+    width: 48px;
+    height: 48px;
+  }
+
+  .count {
+    min-width: 1.8em;
+  }
+
   .hud-meters {
     gap: 16px;
   }

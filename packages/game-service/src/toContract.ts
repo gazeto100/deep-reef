@@ -43,9 +43,13 @@ export function toGameConfig<S extends string>(def: GameDefinition<S>): GameConf
     freeSpins: {
       triggerCount: def.freeSpins.triggerCount,
       awarded: def.freeSpins.awarded,
+      retriggerAwarded: def.freeSpins.retriggerAwarded,
+      maxTotal: def.freeSpins.maxTotal,
       winMultiplier: def.freeSpins.winMultiplier,
     },
     maxWinMultiplier: def.maxWinMultiplier,
+    wildReels: [...def.constraints.wildReels],
+    rtp: def.declaredRtp,
   };
 }
 

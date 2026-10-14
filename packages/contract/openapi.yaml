@@ -188,6 +188,8 @@ components:
         - scatterPays
         - freeSpins
         - maxWinMultiplier
+        - wildReels
+        - rtp
       properties:
         gameId:
           type: string
@@ -241,6 +243,8 @@ components:
           required:
             - triggerCount
             - awarded
+            - retriggerAwarded
+            - maxTotal
             - winMultiplier
           properties:
             triggerCount:
@@ -249,6 +253,13 @@ components:
             awarded:
               type: integer
               minimum: 1
+            retriggerAwarded:
+              type: integer
+              minimum: 0
+            maxTotal:
+              type: integer
+              minimum: 1
+              description: Most free spins one feature can award, retriggers included.
             winMultiplier:
               type: integer
               minimum: 1
@@ -257,6 +268,17 @@ components:
           type: integer
           minimum: 1
           description: Round win cap as a multiple of total bet.
+        wildReels:
+          type: array
+          items:
+            type: integer
+            minimum: 0
+          description: 0-based reels on which the wild can appear.
+        rtp:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 1
+          description: Theoretical return to player, e.g. 0.956.
       additionalProperties: false
       title: GameConfig
     Session:

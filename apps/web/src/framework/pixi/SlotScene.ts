@@ -1,7 +1,8 @@
-import type { GameConfig } from '@deep-reef/contract/schemas';
+import type { GameConfig, SpinOutcome } from '@deep-reef/contract/schemas';
 import { Container, Graphics, type Texture } from 'pixi.js';
+import type { Hurry } from './Hurry';
 import { ReelSet } from './ReelSet';
-import { WinPresenter } from './WinPresenter';
+import { WinPresenter, winningPositions } from './WinPresenter';
 
 export const CELL_SIZE = 128;
 export const SYMBOL_SIZE = 116;
@@ -48,6 +49,20 @@ export class SlotScene extends Container {
     this.reelSet.position.set(FRAME_PADDING, FRAME_PADDING);
     this.winPresenter.position.set(FRAME_PADDING, FRAME_PADDING);
     this.addChild(frame, this.reelSet, this.winPresenter);
+  }
+
+  /** Shows a spin's wins: non-winning symbols dimmed, winning lines and frames on top. */
+  async showWins(spin: SpinOutcome, durationMs: number, hurry: Hurry): Promise<void> {
+    const positions = winningPositions(spin);
+    if (positions.length === 0) return;
+    this.reelSet.dimExcept(positions);
+    await this.winPresenter.show(spin, durationMs, hurry);
+    this.reelSet.dimExcept(null);
+  }
+
+  clearWins(): void {
+    this.winPresenter.clear();
+    this.reelSet.dimExcept(null);
   }
 
   /** Uniform scale to fit the screen with a small margin, centred. */

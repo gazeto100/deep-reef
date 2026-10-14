@@ -1,11 +1,11 @@
-import type { SpinOutcome, SpinResponse } from '@deep-reef/contract/schemas';
-import type { Application, Ticker } from 'pixi.js';
+import type { GameConfig, SpinOutcome, SpinResponse } from '@deep-reef/contract/schemas';
+import type { Application, Texture, Ticker } from 'pixi.js';
 import { freeSpinProgress, presentationFinished } from '../state/actions';
 import type { SlotState, SlotStore } from '../state/store';
 import { Hurry } from './Hurry';
 import type { ReelTimings } from './ReelSet';
 import { SlotScene, SYMBOL_SIZE } from './SlotScene';
-import { createSymbolTextures, type SymbolTheme } from './SymbolTextures';
+import { loadSymbolTextures, type SymbolArt } from './SymbolTextures';
 
 interface PresentationTimings extends ReelTimings {
   readonly winShowMs: number;
@@ -42,20 +42,45 @@ export const TURBO_TIMINGS: PresentationTimings = {
  *   its end: browsers pause requestAnimationFrame in hidden pages, and a round must not
  *   hang half-presented with the win not yet credited.
  *
- * Returns a dispose function for the React boundary.
+ * Returns a dispose function for the React boundary. It is safe to call while the symbol
+ * artwork is still loading: the scene is then never created.
  */
-export function mountSlotScene(app: Application, store: SlotStore, theme: SymbolTheme): () => void {
+export function mountSlotScene(app: Application, store: SlotStore, art: SymbolArt): () => void {
   const config = store.getState().session.config;
   if (!config) throw new Error('mountSlotScene needs a ready session');
 
-  const textures = createSymbolTextures(app.renderer, config.symbols, theme, SYMBOL_SIZE);
+  let disposed = false;
+  let stop: (() => void) | null = null;
+  let release: (() => void) | null = null;
+
+  loadSymbolTextures(app.renderer, config.symbols, art, SYMBOL_SIZE)
+    .then((loaded) => {
+      release = loaded.release;
+      if (!disposed) stop = startScene(app, store, config, loaded.textures);
+      else release();
+    })
+    .catch((error: unknown) => console.error('could not start the slot scene', error));
+
+  return () => {
+    disposed = true;
+    stop?.();
+    release?.();
+  };
+}
+
+function startScene(
+  app: Application,
+  store: SlotStore,
+  config: GameConfig,
+  textures: ReadonlyMap<string, Texture>,
+): () => void {
   const scene = new SlotScene(config, textures);
   app.stage.addChild(scene);
 
   let lastGrid: readonly (readonly string[])[] | null = store.getState().round.result?.round.base.grid ?? null;
   if (lastGrid) scene.reelSet.show(lastGrid);
 
-  // Refit whenever the canvas size changes (resizeTo follows the container: rotation, window resize).
+  // Refit whenever the canvas size changes (the canvas follows its container).
   let fittedFor = '';
   const tick = (ticker: Ticker): void => {
     const size = `${app.screen.width}x${app.screen.height}`;
@@ -80,7 +105,7 @@ export function mountSlotScene(app: Application, store: SlotStore, theme: Symbol
   let disposed = false;
 
   const startReels = (): void => {
-    scene.winPresenter.clear();
+    scene.clearWins();
     scene.reelSet.start(timings());
     spinStartedAt = performance.now();
   };
@@ -98,7 +123,7 @@ export function mountSlotScene(app: Application, store: SlotStore, theme: Symbol
   };
 
   const showWins = (spin: SpinOutcome): Promise<void> =>
-    pageHidden() ? Promise.resolve() : scene.winPresenter.show(spin, timings().winShowMs, hurry);
+    pageHidden() ? Promise.resolve() : scene.showWins(spin, timings().winShowMs, hurry);
 
   const present = async (result: SpinResponse): Promise<void> => {
     const { base, freeSpins } = result.round;
@@ -159,6 +184,5 @@ export function mountSlotScene(app: Application, store: SlotStore, theme: Symbol
     // Unmounting mid-round must not lose the win: finish the round in state.
     if (store.getState().round.phase === 'presenting') store.dispatch(presentationFinished());
     scene.destroy({ children: true });
-    for (const texture of textures.values()) texture.destroy(true);
   };
 }

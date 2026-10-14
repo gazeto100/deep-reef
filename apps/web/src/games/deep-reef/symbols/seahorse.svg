@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6fd0ff"/>
+      <stop offset="1" stop-color="#1864ab"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffe066"/>
+      <stop offset="1" stop-color="#f08c00"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="44" fill="url(#bg)"/>
+  <path d="M24 96 C24 40 40 22 72 22 L184 22 C216 22 232 40 232 96 C190 70 66 70 24 96 Z" fill="#fff" opacity=".14"/>
+  <circle cx="58" cy="190" r="6" fill="#fff" opacity=".35"/>
+  <circle cx="44" cy="170" r="4" fill="#fff" opacity=".35"/>
+  <g transform="translate(128 128) scale(1.15) translate(-124 -126)">
+  <g stroke="#0b1d2a" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+    <!-- dorsal fin -->
+    <path d="M150 118 C176 112 186 130 178 146 C168 142 158 136 150 132 Z" fill="#ffa94d"/>
+    <!-- body with curled tail -->
+    <path d="M118 40 C150 34 168 56 160 82 C154 100 150 112 156 132 C166 162 154 196 130 212 C112 224 92 216 94 198 C96 182 116 182 116 196 C116 204 124 204 130 196 C144 176 138 154 126 138 C112 120 110 102 114 88 L104 92 C92 96 76 94 70 86 C82 82 94 76 104 70 C104 54 108 44 118 40 Z" fill="url(#body)"/>
+  </g>
+  <!-- crest and belly ridges -->
+  <g fill="none" stroke="#0b1d2a" stroke-width="4" stroke-linecap="round">
+    <path d="M122 38 L126 24 M136 38 L144 26 M148 44 L158 34"/>
+    <path d="M132 120 L120 124 M138 138 L126 144 M142 156 L130 162 M140 174 L128 178"/>
+  </g>
+  <!-- eye -->
+  <circle cx="132" cy="64" r="11" fill="#fff" stroke="#0b1d2a" stroke-width="5"/>
+  <circle cx="129" cy="65" r="5" fill="#0b1d2a"/>
+  </g>
+  <rect x="8" y="8" width="240" height="240" rx="44" fill="none" stroke="#dff3ff" stroke-opacity=".9" stroke-width="6"/>
+</svg>

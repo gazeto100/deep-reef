@@ -14,13 +14,14 @@ The public build runs entirely in the browser. The game core (the same `GameServ
 server will run) sits behind a simulated network, so the client uses the same code paths it
 would against a remote server.
 
-| Action                | How                                                                                   |
-| --------------------- | ------------------------------------------------------------------------------------- |
-| Spin                  | **Spin** button or the space bar                                                      |
-| Slam stop / skip wins | Press again while a round is running: first the reels stop, then the wins are skipped |
-| Turbo                 | **Turbo** toggle: shorter spins and win displays                                      |
-| Change the bet        | **−** / **+** between rounds                                                          |
-| Start over            | **Reset balance**: a new session with 10,000 credits                                  |
+| Action                | How                                                                                    |
+| --------------------- | -------------------------------------------------------------------------------------- |
+| Spin                  | **Spin** button or the space bar                                                       |
+| Slam stop / skip wins | Press again while a round is running: first the reels stop, then the wins are skipped  |
+| Turbo                 | **Turbo** toggle: shorter spins and win displays                                       |
+| Change the bet        | **−** / **+** between rounds                                                           |
+| Start over            | **Reset balance**: a new session with 10,000 credits                                   |
+| Rules and pays        | **i** button: pays at the current bet, wild/scatter/free-spin rules, the 20 lines, RTP |
 
 - The bet leaves the balance the moment you spin; the win is added after the presentation.
 - The balance is kept in the browser's `localStorage`, so it survives a reload. Every round's
@@ -61,18 +62,19 @@ Work in progress. Each development phase lives on its own branch and is merged i
 
 ## Scripts
 
-| Command               | What it does                                                         |
-| --------------------- | -------------------------------------------------------------------- |
-| `npm run dev`         | Vite dev server                                                      |
-| `npm run build`       | Typecheck and production build (`apps/web/dist`)                     |
-| `npm run typecheck`   | `tsc -b` over the browser, pure-math and Node projects               |
-| `npm run lint`        | ESLint (including layer boundaries) and Prettier check               |
-| `npm test`            | Vitest                                                               |
-| `npm run math:verify` | Math invariants (reachability, contribution, pay order, RTP bounds…) |
-| `npm run math:exact`  | Exact full-cycle math report                                         |
-| `npm run math:sim`    | Monte Carlo simulation, compared with the exact values               |
-| `npm run api:openapi` | Regenerate `packages/contract/openapi.yaml` from the schemas         |
-| `npm run api:lint`    | Lint the OpenAPI spec (Redocly)                                      |
+| Command               | What it does                                                             |
+| --------------------- | ------------------------------------------------------------------------ |
+| `npm run dev`         | Vite dev server                                                          |
+| `npm run build`       | Typecheck and production build (`apps/web/dist`)                         |
+| `npm run typecheck`   | `tsc -b` over the browser, pure-math and Node projects                   |
+| `npm run lint`        | ESLint (including layer boundaries) and Prettier check                   |
+| `npm test`            | Vitest                                                                   |
+| `npm run math:verify` | Math invariants (reachability, contribution, pay order, RTP bounds…)     |
+| `npm run math:exact`  | Exact full-cycle math report                                             |
+| `npm run math:sim`    | Monte Carlo simulation, compared with the exact values                   |
+| `npm run api:openapi` | Regenerate `packages/contract/openapi.yaml` from the schemas             |
+| `npm run api:lint`    | Lint the OpenAPI spec (Redocly)                                          |
+| `npm run package:web` | Build and pack `release/deep-reef-web-<commit>.zip` for cPanel (755/644) |
 
 CI runs typecheck, lint, tests (a stale `openapi.yaml` fails a test), OpenAPI lint, verify and build on every push and pull request.
 

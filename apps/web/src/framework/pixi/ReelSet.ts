@@ -75,6 +75,20 @@ export class ReelSet extends Container {
     this.reels.forEach((reel, i) => reel.slam(grid[i]));
   }
 
+  /** Dims all symbols except `positions`; null restores everything. */
+  dimExcept(positions: readonly { reel: number; row: number }[] | null): void {
+    this.reels.forEach((reel, r) => {
+      if (positions === null) {
+        reel.dim(null);
+        return;
+      }
+      const keep = Array.from({ length: this.options.rows }, (_, row) =>
+        positions.some((p) => p.reel === r && p.row === row),
+      );
+      reel.dim(keep);
+    });
+  }
+
   update(deltaMs: number): void {
     for (const reel of this.reels) reel.update(deltaMs);
   }

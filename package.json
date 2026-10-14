@@ -29,7 +29,8 @@
     "math:sim": "npm run sim -w @deep-reef/math --",
     "math:verify": "npm run verify -w @deep-reef/math --",
     "api:openapi": "npm run openapi -w @deep-reef/contract",
-    "api:lint": "npm run openapi:lint -w @deep-reef/contract"
+    "api:lint": "npm run openapi:lint -w @deep-reef/contract",
+    "package:web": "npm run build && npm run package -w @deep-reef/web"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

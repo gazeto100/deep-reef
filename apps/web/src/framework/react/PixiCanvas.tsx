@@ -33,11 +33,25 @@ export function PixiCanvas({ options, onReady, onEvent, className }: PixiCanvasP
     if (!container) return;
 
     let cleanup: (() => void) | undefined;
+    let observer: ResizeObserver | undefined;
     const host = new PixiHost(() => new Application(), handleEvent);
     host
-      .mount(container, { resizeTo: container, ...initialOptions.current })
+      .mount(container, {
+        width: Math.max(1, container.clientWidth),
+        height: Math.max(1, container.clientHeight),
+        ...initialOptions.current,
+      })
       .then((app) => {
         if (!app) return; // disposed during init: nothing was mounted
+        // Follow the container, not the window: Pixi's resizeTo only listens to window
+        // resize, so layout changes (a scrollbar appearing, the HUD reflowing) left the
+        // canvas at its old size and caused horizontal scrolling.
+        observer = new ResizeObserver(() => {
+          app.renderer.resize(Math.max(1, container.clientWidth), Math.max(1, container.clientHeight));
+        });
+        observer.observe(container);
+        // Development only: the hook the PixiJS DevTools extension looks for.
+        if (import.meta.env.DEV) (globalThis as { __PIXI_APP__?: unknown }).__PIXI_APP__ = app;
         const result = handleReady(app);
         if (typeof result === 'function') cleanup = result;
       })
@@ -46,6 +60,7 @@ export function PixiCanvas({ options, onReady, onEvent, className }: PixiCanvasP
       });
 
     return () => {
+      observer?.disconnect();
       cleanup?.();
       host.dispose();
     };

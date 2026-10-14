@@ -99,7 +99,7 @@ export default tseslint.config(
 
   { files: ['apps/web/src/**/*.{ts,tsx}'], languageOptions: { globals: globals.browser } },
   {
-    files: ['packages/*/scripts/**/*.ts', '**/*.config.{js,ts}'],
+    files: ['packages/*/scripts/**/*.ts', 'apps/*/scripts/**/*.ts', '**/*.config.{js,ts}'],
     languageOptions: { globals: globals.node },
   },
   { files: ['apps/web/src/**/*.tsx'], extends: [reactHooks.configs.flat['recommended-latest']] },
